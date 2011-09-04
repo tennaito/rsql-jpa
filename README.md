@@ -1,8 +1,8 @@
 # RSQL for Hibernate
 
-RESTful Service Query Language (RSQL) is my language and library that is designed for searching entries in RESTful services. 
+RESTful Service Query Language (RSQL) is a language and a library designed for searching entries in RESTful services.
 
-This library provides convertor of [RSQL expression](https://github.com/jirutka/rsql-parser) to Hibernate’s [Criteria Query](http://docs.jboss.org/hibernate/core/3.5/reference/en/html/querycriteria.html) (object representation of HQL), from which is then generated SQL query. RSQL was originally created for [KOSapi](https://kosapi.fit.cvut.cz) - RESTful web services for our IS at the Czech Technical University in Prague. 
+This library provides convertor of [RSQL expression](https://github.com/jirutka/rsql-parser) to Hibernate’s [Criteria Query](http://docs.jboss.org/hibernate/core/3.5/reference/en/html/querycriteria.html) (object representation of HQL), which is converted to SQL query. RSQL was originally created for [KOSapi](https://kosapi.fit.cvut.cz) - RESTful web services for IS at the Czech Technical University in Prague. 
 
 
 ## Overview
@@ -11,18 +11,19 @@ RSQL-hibernate consists of four main parts - _RSQLHibernateFactory_, _RSQLCriter
 
 **RSQLHibernateFactory** is a factory for creating preconfigured instances of the _RSQLCriteriaBuilder_ for a particular entity class. This is mostly useful when you’re using some IoC container like Spring Framework and its XML configuration of beans.
 
-**RSQLCriteriaBuilder** is the main client interface that provides methods for creating Hibernate’s _DetachedCriteria_ from an input RSQL expression. This workflow begins with parsing the expression through the [RSQL-parser](https://github.com/jirutka/rsql-parser). Then it traverses resulting tree, creates _Criterions_ for logical operators and delegates comparisons (constraints) to one of the Criterion Builders. It iterates over the builders stack to find the builder that can handle given comparison. You can simply add your custom ones.
+**RSQLCriteriaBuilder** is the main client interface that provides methods for creating Hibernate’s _DetachedCriteria_ from an input RSQL expression.
+Firstly, the expression is parsed through the [RSQL-parser](https://github.com/jirutka/rsql-parser). The resulting tree is traversed, _Criterions_ for logical operators are created, and comparisons (constraints) are delegated to one of the Criterion Builders. Criterion Builders are arranged in the stack, which is searched for the builder that is able to handle the given comparison. You can simply add your custom builders.
 
-**Criterion Builders** are responsible for creating _Criterion_ from given comparison. Here comes the most interesting part. Before do that, it has to match a selector (typically name of XML element) with a particular entity’s property and convert argument to the property type. RSQL-hibernate provides four builders:
+**Criterion Builders** are responsible for creating _Criterion_ from a given comparison. Here comes the juicy part: Before creating a Criterion, the Builder has to match a selector (typically a name of an XML element) with a particular entity’s property and convert an argument to the property type. RSQL-hibernate provides four builders:
 
-* **DefaultCriterionBuilder** - Default implementation that simply creates _Criterion_ for a basic property (not association).
-* **IdentifierCriterionBuilder** - Builder that can create _Criterion_ for a property which represents an association and argument which contains ID of the associated entity.
-* **NaturalIdCriterionBuilder** - Builder that can create _Criterion_ for a property which represents an association and argument which contains _NaturalID_ of the associated entity.
-* **JoinsCriterionBuilder** - This builder can handle association “dereference”. That means you can specify constraints upon related entities by navigating associations using dot-notation. For example, we have entity Course with property _department_, which is _ManyToOne_ association, and entity Department with basic property _name_. Then we can use `department.name==KSI` to find all courses related to department KSI. Builder implicitly creates JOIN for every associated entity. You can also set upper limit of JOINs that can be generated.
+* **DefaultCriterionBuilder** - Default implementation, simply creates _Criterion_ for a basic property (not association).
+* **IdentifierCriterionBuilder** - Creates _Criterion_ for a property representing an association, and an argument containing ID of the associated entity.
+* **NaturalIdCriterionBuilder** - Creates _Criterion_ for a property representing an association, and an argument containing _NaturalID_ of the associated entity.
+* **JoinsCriterionBuilder** - Handles association “dereference”. That means you can specify constraints upon related entities by navigating associations using dot-notation. For example, we have entity Course with property _department_, which is _ManyToOne_ association, and entity Department with basic property _name_. Then we can use `department.name==KSI` to find all courses related to the department KSI. Builder implicitly creates JOIN for every associated entity. You can also set upper limit of JOINs that can be generated.
 
-If you need some special builder, simply extend _AbstractCriterionBuilder_ (or one of these) and override methods you want.
+If you need a custom builder, simply extend _AbstractCriterionBuilder_ (or any of the previously mentioned) and override methods you want.
 
-**Mapper** is used to translate a selector to entity’s property name. Translation is done before delegating to Criterion Builder or setting _orderBy_ property. Mapper is useful when you don’t have 1:1 names mapping between selectors and entity properties, i.e. identifier used in RSQL expression doesn’t exactly match name of the corresponding entity’s property. You can use provided _SimpleMapper_ with maps of names mapping per entity or implement your own special Mapper. For example, I have one that maps selectors of multilingual elements according to request _Accept-Language_. 
+**Mapper** translates a selector to entity’s property name. Translation is done before delegating to Criterion Builder or setting _orderBy_ property. Mapper is useful when you don’t have 1:1 names mapping between selectors and entity properties, i.e. identifier used in RSQL expression doesn’t exactly match name of the corresponding entity’s property. You can use provided _SimpleMapper_ with maps of names mapping per entity or implement your own special Mapper. For example, I have one that maps selectors of multilingual elements according to request’s Accept-Language.
 
 
 ## Usage
@@ -88,14 +89,14 @@ When some selector doesn’t match name of its entity’s property, you can use 
 
 ## RSQL syntax
 
-RSQL syntax is described on the project page of [RSQL-parser](https://github.com/jirutka/rsql-parser). There’s only one addition described below.
+RSQL syntax is described on [RSQL-parser’s project page](https://github.com/jirutka/rsql-parser). There’s only one addition described below.
 
-For comparing string arguments with Equals or Not Equals, you can use wildcards `*` and `_`. If the argument begins or ends with an asterisk character `*`, it acts as a wild card, matching any characters preceding or following (respectively) that position. If it also contains an underscore character `_`, it acts as a wildcard, matching exactly one any character. It corresponds to the percentage, respectively underscore wildcard of the LIKE condition in SQL.
+For comparing string arguments with Equals or Not Equals, you can use wildcards `*` and `_`. If the argument begins or ends with an asterisk character `*`, it acts as a wild card, matching any characters preceding or following (respectively) that position. If the argument also contains an underscore character `_`, it acts as a wildcard, matching exactly one character. It corresponds to the percentage, respectively underscore wildcard of the LIKE condition in SQL.
 
 
 ## Examples
 
-I guess that some practical example will come handy. Below is truncated output from my RESTful service KOSapi.
+I guess that some practical example will come handy. Below is a truncated output from my RESTful service KOSapi.
 
     <atom:feed xml:lang="en" xml:base="https://kosapi.fit.cvut.cz/api/3/">
         ...

@@ -37,47 +37,46 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jakub Jirutka <jakub@jirutka.cz>
  */
-//@TODO vyřešit dereferenci ID a NaturalID
-public class JoinsCriterionBuilder extends AbstractCriterionBuilder {
+public class AssociationsCriterionBuilder extends AbstractCriterionBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JoinsCriterionBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AssociationsCriterionBuilder.class);
     
     
     @Override
-    public boolean canAccept(String propPath, Comparison operator, CriteriaBuilder builder) {       
-        return splitPath(propPath).length > 1;
+    public boolean accept(String propertyPath, Class<?> entityClass, CriteriaBuilder builder) {       
+        return splitPath(propertyPath).length > 1;
     }
 
     @Override
-    public Criterion createCriterion(String propPath, Comparison operator, 
-            String argument, CriteriaBuilder builder) 
-            throws ArgumentFormatException, UnknownSelectorException, JoinsLimitException {
+    public Criterion createCriterion(String propertyPath, Comparison operator, 
+            String argument, Class<?> entityClass, String alias, CriteriaBuilder builder)
+            throws ArgumentFormatException, UnknownSelectorException, AssociationsLimitException {
         
-        String[] properties = splitPath(propPath);
-        String entityAlias = "";
+        String[] path = splitPath(propertyPath);
+        String lastAlias = alias;
         String property = null;
-        Class<?> type = builder.getEntityClass();
+        Class<?> lastClass = entityClass;
         
-        for (int i = 0; i < properties.length; i++) {
-            ClassMetadata metadata = builder.getClassMetadata(type);
-            property = builder.getMapper().translate(properties[i], type);
+        // walk through associations
+        for (int i = 0; i < path.length -1; i++) {
+            ClassMetadata metadata = builder.getClassMetadata(lastClass);
+            property = builder.getMapper().translate(path[i], lastClass);
             
             if (!isPropertyName(property, metadata)) {
-                throw new UnknownSelectorException(property);
+                throw new UnknownSelectorException(path[i]);
             }
-            type = findPropertyType(property, metadata);
+            lastClass = findPropertyType(property, metadata);
             
-            LOG.trace("Nesting level {}: property '{}' of type '{}'",
-                    new Object[]{i, property, type});
-            
-            if (i < properties.length -1) {
-                entityAlias = builder.addJoin(entityAlias + property) + '.';
-            }
+            LOG.trace("Nesting level {}: property '{}' of entity {}",
+                    new Object[]{i, property, lastClass.getSimpleName()});
+
+            lastAlias = builder.createAssociationAlias(lastAlias + property) + '.';
         }
         
-        Object castedArgument = parseArgument(argument, type);
+        // the last property may by an ordinal property (not an association)
+        property = builder.getMapper().translate(path[path.length -1], lastClass);
         
-        return createCriterion(entityAlias + property, operator, castedArgument);
+        return builder.delegateToBuilder(property, operator, argument, lastClass, lastAlias);
     }
     
     protected String[] splitPath(String path) {

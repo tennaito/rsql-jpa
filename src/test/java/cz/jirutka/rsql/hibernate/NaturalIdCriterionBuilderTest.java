@@ -35,20 +35,21 @@ public class NaturalIdCriterionBuilderTest extends AbstractCriterionBuilderTest 
     @Before
     public void setUp() throws Exception {
         instance = new NaturalIdCriterionBuilder();
-        parent = new MockCriterionBuilder(Course.class);
+        entityClass = Course.class;
+        parent = new MockInnerBuilder(Course.class);
         sessionFactory = SessionFactoryInitializer.getSessionFactory();
     }
     
 
     @Test
     public void testAccept() {
-        CriteriaBuilder parentDep = new MockCriterionBuilder(Department.class);
+        CriteriaBuilder parentDep = new MockInnerBuilder(Department.class);
 
-        assertTrue(instance.canAccept("department", Comparison.EQUAL, parent));
-        assertFalse(instance.canAccept("head", Comparison.EQUAL, parentDep));
-        assertFalse(instance.canAccept("name", Comparison.EQUAL, parent));
-        assertFalse(instance.canAccept("id", Comparison.EQUAL, parent));
-        assertFalse(instance.canAccept("invalid", Comparison.EQUAL, parent));
+        assertTrue(instance.accept("department", entityClass, parent));
+        assertFalse(instance.accept("head", entityClass, parentDep));
+        assertFalse(instance.accept("name", entityClass, parent));
+        assertFalse(instance.accept("id", entityClass, parent));
+        assertFalse(instance.accept("invalid", entityClass, parent));
     }
 
     @Test
@@ -56,18 +57,19 @@ public class NaturalIdCriterionBuilderTest extends AbstractCriterionBuilderTest 
         Criterion expResult;
         Criterion result;
         
-        CriteriaBuilder parent1 = new MockCriterionBuilder(Course.class) {
-            public String addJoin(String property) throws JoinsLimitException {
-                assertEquals("department", property);
+        CriteriaBuilder parent1 = new MockInnerBuilder(Course.class) {
+            @Override
+            public String createAssociationAlias(String property) throws AssociationsLimitException {
+                assertEquals("that.department", property);
                 return "alias1";
             }
         };
         expResult = Restrictions.eq("alias1.code", "18102");
-        result = instance.createCriterion("department", Comparison.EQUAL, "18102", parent1);
+        result = instance.createCriterion("department", Comparison.EQUAL, "18102", entityClass, "that.", parent1);
         assertEquals(expResult.toString(), result.toString());
 
         try {
-            result = instance.createCriterion("department", Comparison.EQUAL, "non-numeric", parent1);
+            result = instance.createCriterion("department", Comparison.EQUAL, "non-numeric", entityClass, "that.", parent1);
             fail("Should raise an ArgumentFormatException");
         } catch (ArgumentFormatException ex) { /*OK*/ }
     }
@@ -75,14 +77,14 @@ public class NaturalIdCriterionBuilderTest extends AbstractCriterionBuilderTest 
     @Test
     public void testHasNaturalIdentifier() throws HibernateException {
         NaturalIdCriterionBuilder instance = (NaturalIdCriterionBuilder) this.instance;
-        CriteriaBuilder parentDep = new MockCriterionBuilder(Department.class);
+        CriteriaBuilder parentDep = new MockInnerBuilder(Department.class);
 
-        assertTrue(instance.hasNaturalIdentifier("department", parent));
-        assertFalse(instance.hasNaturalIdentifier("head", parentDep));
+        assertTrue(instance.hasNaturalIdentifier("department", entityClass, parent));
+        assertFalse(instance.hasNaturalIdentifier("head", Department.class, parentDep));
         try {
-            assertFalse(instance.hasNaturalIdentifier("name", parent));
-            assertFalse(instance.hasNaturalIdentifier("id", parent));
-            assertFalse(instance.hasNaturalIdentifier("invalid", parent));
+            assertFalse(instance.hasNaturalIdentifier("name", entityClass, parent));
+            assertFalse(instance.hasNaturalIdentifier("id", entityClass, parent));
+            assertFalse(instance.hasNaturalIdentifier("invalid", entityClass, parent));
         } catch (Exception ex) { /*OK*/ }
     }
 }

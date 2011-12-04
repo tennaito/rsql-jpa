@@ -32,7 +32,7 @@ public class UnknownSelectorException extends Exception {
      * @param selector 
      */
     public UnknownSelectorException(String selector) {
-        super("Cannot find: " + selector);
+        super("Cannot find property for selector: " + selector);
         this.selector = selector;        
     }
 

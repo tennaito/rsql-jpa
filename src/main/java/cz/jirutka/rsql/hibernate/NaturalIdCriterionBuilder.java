@@ -38,17 +38,17 @@ public class NaturalIdCriterionBuilder extends IdentifierCriterionBuilder {
 
     
     @Override
-    public boolean canAccept(String property, Comparison operator, CriteriaBuilder builder) {
-        return super.canAccept(property, operator, builder) 
-                && hasNaturalIdentifier(property, builder);
+    public boolean accept(String property, Class<?> entityClass, CriteriaBuilder builder) {
+        return super.accept(property, entityClass, builder) 
+                && hasNaturalIdentifier(property, entityClass, builder);
     }
 
     @Override
     public Criterion createCriterion(String property, Comparison operator, 
-            String argument, CriteriaBuilder builder) 
+            String argument, Class<?> entityClass, String alias, CriteriaBuilder builder) 
             throws ArgumentFormatException, UnknownSelectorException {
 
-        Class<?> type = findPropertyType(property, builder.getClassMetadata());
+        Class<?> type = findPropertyType(property, builder.getClassMetadata(entityClass));
         ClassMetadata classMetadata = builder.getClassMetadata(type);
         int[] idProps = classMetadata.getNaturalIdentifierProperties();
         Class<?> idType = classMetadata.getPropertyTypes()[idProps[0]].getReturnedClass();
@@ -60,11 +60,11 @@ public class NaturalIdCriterionBuilder extends IdentifierCriterionBuilder {
         LOG.debug("Entity {} has Natural ID {} of type {}", 
                 new Object[]{type.getSimpleName(), idName, idType.getSimpleName()});
 
-        Object castedArgument = parseArgument(argument, idType);
+        Object castedArgument = builder.getArgumentParser().parse(argument, idType);
         
-        String entityAlias = builder.addJoin(property);
+        String newAlias = builder.createAssociationAlias(alias + property);
 
-        return createCriterion(entityAlias +'.'+ idName, operator, castedArgument);
+        return createCriterion(newAlias +'.'+ idName, operator, castedArgument);
 
     }
     
@@ -80,9 +80,9 @@ public class NaturalIdCriterionBuilder extends IdentifierCriterionBuilder {
      * @throws HibernateException If entity does not contain such property or
      *         it's not an association type.
      */
-    protected boolean hasNaturalIdentifier(String property, CriteriaBuilder builder) 
+    protected boolean hasNaturalIdentifier(String property, Class<?> entityClass, CriteriaBuilder builder) 
             throws HibernateException {
-        Class<?> type = findPropertyType(property, builder.getClassMetadata());
+        Class<?> type = findPropertyType(property, builder.getClassMetadata(entityClass));
         ClassMetadata assocClassMetadata = builder.getClassMetadata(type);
         
         return assocClassMetadata.hasNaturalIdentifier();

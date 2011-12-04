@@ -35,17 +35,18 @@ public class IdentifierCriterionBuilderTest extends AbstractCriterionBuilderTest
     @Before
     public void setUp() throws Exception {
         instance = new IdentifierCriterionBuilder();
-        parent = new MockCriterionBuilder(Course.class);
+        entityClass = Course.class;
+        parent = new MockInnerBuilder(Course.class);
         sessionFactory = SessionFactoryInitializer.getSessionFactory();
     }
     
     
     @Test
     public void testAccept() {
-        assertTrue(instance.canAccept("department", Comparison.EQUAL, parent));
-        assertFalse(instance.canAccept("name", Comparison.EQUAL, parent));
-        assertFalse(instance.canAccept("id", Comparison.EQUAL, parent));
-        assertFalse(instance.canAccept("invalid", Comparison.EQUAL, parent));
+        assertTrue(instance.accept("department", entityClass, parent));
+        assertFalse(instance.accept("name", entityClass, parent));
+        assertFalse(instance.accept("id", entityClass, parent));
+        assertFalse(instance.accept("invalid", entityClass, parent));
     }
 
     @Test
@@ -53,13 +54,13 @@ public class IdentifierCriterionBuilderTest extends AbstractCriterionBuilderTest
         Criterion expResult;
         Criterion result;
         
-        expResult = Restrictions.eq("department.id", 123456L);
-        result = instance.createCriterion("department", Comparison.EQUAL, "123456", parent);
+        expResult = Restrictions.eq("that.department.id", 123456L);
+        result = instance.createCriterion("department", Comparison.EQUAL, "123456", entityClass, "that.", parent);
         //equals() on Criterion doesn't work here, hence toString()
         assertEquals(expResult.toString(), result.toString());
 
         try {
-            result = instance.createCriterion("department", Comparison.EQUAL, "non-number", parent);
+            result = instance.createCriterion("department", Comparison.EQUAL, "non-number", entityClass, "that.", parent);
             fail("Should raise an ArgumentFormatException");
         } catch (ArgumentFormatException ex) { /*OK*/ }
     }

@@ -21,9 +21,7 @@ import cz.jirutka.rsql.hibernate.entity.Course;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-import java.util.Date;
 import cz.jirutka.rsql.parser.model.Comparison;
-import java.util.GregorianCalendar;
 import org.hibernate.criterion.Criterion;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -35,6 +33,7 @@ import static org.junit.Assert.*;
 public abstract class AbstractCriterionBuilderTest {
     
     protected AbstractCriterionBuilder instance;
+    protected Class<?> entityClass;
     protected CriteriaBuilder parent;
     protected SessionFactory sessionFactory;
     
@@ -81,49 +80,6 @@ public abstract class AbstractCriterionBuilderTest {
         assertEquals(exptected.toString(), actual.toString());
 
     }
-
-    @Test
-    public void testParseArgument() throws Exception {
-        String argument;
-        Object expected;
-        Object actual;
-        
-        argument = "string";
-        expected = "string";
-        actual = instance.parseArgument(argument, String.class);
-        assertEquals(expected, actual);
-        
-        argument = "123456";
-        expected = 123456;
-        actual = instance.parseArgument(argument, Integer.class);
-        assertEquals(expected, actual);
-        
-        argument = "true";
-        expected = true;
-        actual = instance.parseArgument(argument, Boolean.class);
-        assertEquals(expected, actual);
-        
-        argument = "FOO";
-        expected = MockEnum.FOO;
-        actual = instance.parseArgument(argument, MockEnum.class);
-        assertEquals(expected, actual);
-        
-        argument = "2011-08-26";
-        expected = new GregorianCalendar(2011, 7, 26).getTime();
-        actual = instance.parseArgument(argument, Date.class);
-        assertEquals(expected, actual);
-        
-        argument = "2011-08-26T14:15:30";
-        expected = new GregorianCalendar(2011, 7, 26, 14, 15, 30).getTime();
-        actual = instance.parseArgument(argument, Date.class);
-        assertEquals(expected, actual);
-        
-        argument = "foo";
-        expected = new MockValueOfType();
-        actual = instance.parseArgument(argument, MockValueOfType.class);
-        assertTrue(actual instanceof MockValueOfType);
-        
-    }
     
     @Test
     public void testIsPropertyName() {
@@ -150,49 +106,57 @@ public abstract class AbstractCriterionBuilderTest {
     
     ////////////////////////// Mocks //////////////////////////
 
-    protected class MockCriterionBuilder implements CriteriaBuilder {
+    protected class MockInnerBuilder implements CriteriaBuilder {
         private Class<?> entityClass;
+        private ArgumentParser argumentParser = new DefaultArgumentParser();
 
-        public MockCriterionBuilder(Class<?> entityClass) {
+        public MockInnerBuilder(Class<?> entityClass) {
             this.entityClass = entityClass;
         }
 
         private final Mapper mapper = new Mapper() {
+            @Override
             public String translate(String selector, Class<?> entityClass) {
                 return selector;
             }
         };
         
-        public String addJoin(String property) throws JoinsLimitException {
-            return "";
+        @Override
+        public String createAssociationAlias(String associationPath) throws AssociationsLimitException {
+            return "this";
         }
 
-        public ClassMetadata getClassMetadata() {
-            return sessionFactory.getClassMetadata(entityClass);
+        @Override
+        public String createAssociationAlias(String associationPath, int joinType) throws AssociationsLimitException {
+            return "this";
+        }
+        
+        @Override
+        public Criterion delegateToBuilder(String property, Comparison operator, String argument, Class<?> entityClass, String alias) 
+                throws ArgumentFormatException, UnknownSelectorException, IllegalStateException {
+            return new DefaultCriterionBuilder().createCriterion(property, operator, argument, entityClass, alias, parent);
         }
 
+        @Override
+        public ArgumentParser getArgumentParser() {
+            return argumentParser;
+        }
+        
+        @Override
         public ClassMetadata getClassMetadata(Class<?> entityClass) {
             return sessionFactory.getClassMetadata(entityClass);
         }
 
-        public Class<?> getEntityClass() {
-            return entityClass;
-        }
-
+        @Override
         public Mapper getMapper() {
             return mapper;
         }
-    }
-    
-    protected enum MockEnum {
-        FOO, BAR;
-    }
-    
-    protected static class MockValueOfType {
-        
-        public static MockValueOfType valueOf(String s) {
-            return new MockValueOfType();
+
+        @Override
+        public String getRootAlias() {
+            return "this.";
         }
+
     }
     
 }

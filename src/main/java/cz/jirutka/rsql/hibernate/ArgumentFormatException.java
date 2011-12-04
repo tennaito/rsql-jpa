@@ -37,7 +37,7 @@ public class ArgumentFormatException extends Exception {
      * @param propertyType 
      */
     public ArgumentFormatException(String argument, Class<?> propertyType) {
-        super("Cannot cast '" + argument + "' to " + propertyType);
+        super("Cannot cast '" + argument + "' to type " + propertyType);
         this.selector = null;
         this.argument = argument;
         this.propertyType = propertyType;
@@ -51,7 +51,7 @@ public class ArgumentFormatException extends Exception {
      * @param propertyType 
      */
     public ArgumentFormatException(String selector, String argument, Class<?> propertyType) {
-        super("Argument '" + argument + "' of " + selector + " must be " + propertyType.getSimpleName());
+        super("Argument '" + argument + "' of " + selector + " must be of type " + propertyType.getSimpleName());
         this.selector = selector;
         this.argument = argument;
         this.propertyType = propertyType;

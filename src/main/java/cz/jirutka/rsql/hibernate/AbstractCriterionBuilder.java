@@ -17,12 +17,7 @@
 package cz.jirutka.rsql.hibernate;
 
 import cz.jirutka.rsql.parser.model.Comparison;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import cz.jirutka.rsql.parser.model.ComparisonExpression;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -38,76 +33,83 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractCriterionBuilder {
     
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCriterionBuilder.class);
-    
     protected static final Character LIKE_WILDCARD = '*';
-    protected static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd"); //ISO 8601
-    protected static final DateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //ISO 8601
-
     
+    
+    
+    ///////////////  ABSTRACT METHODS  ///////////////
     
     /**
-     * This method is called by Criteria Builder to determine if this can handle 
-     * given comparison (constraint).
+     * This method is called by Criteria Builder to determine if this builder 
+     * can handle given comparison (constraint).
      * 
      * @param property property name or path
-     * @param operator comparison operator
-     * @param parent reference to the parent <tt>CriteriaBuilder</tt>
-     * @return <tt>true</tt> if this builder can handle given selector 
-     *         and operator, otherwise <tt>false</tt>
+     * @param entityClass Class of entity that holds given property.
+     * @param parent Reference to the parent <tt>CriteriaBuilder</tt>.
+     * @return <tt>true</tt> if this builder can handle given property of entity
+     *         class, otherwise <tt>false</tt>
      */
-    public abstract boolean canAccept(String property, Comparison operator, CriteriaBuilder parent);
+    public abstract boolean accept(String property, Class<?> entityClass, CriteriaBuilder parent);
     
     /**
-     * Create Hibernate <tt>Criterion</tt> for given comparison (constraint).
+     * Create <tt>Criterion</tt> for given comparison (constraint).
      * 
      * @param property property name or path
      * @param operator comparison operator
      * @param argument argument
-     * @param parent reference to the parent <tt>CriteriaBuilder</tt>
+     * @param entityClass Class of entity that holds given property.
+     * @param alias Association alias (incl. dot) which must be used to prefix 
+     *        property name!
+     * @param parent Reference to the parent <tt>CriteriaBuilder</tt>.
      * @return Criterion
      * @throws ArgumentFormatException If given argument is not in suitable 
      *         format required by entity's property, i.e. cannot be cast to 
      *         property's type.
-     * @throws UnknownSelectorException If cannot find property for given selector.
+     * @throws UnknownSelectorException If such property does not exist.
      */
-    public abstract Criterion createCriterion(String property, Comparison operator, 
-            String argument, CriteriaBuilder parent) 
+    public abstract Criterion createCriterion(String property, Comparison operator, String argument, 
+            Class<?> entityClass, String alias, CriteriaBuilder parent) 
             throws ArgumentFormatException, UnknownSelectorException;
     
     
     
+    
+    ///////////////  TEMPLATE METHODS  ///////////////
+    
     /**
      * Delegate creating of a Criterion to an appropriate method according to 
-     * operator.
+     * operator. 
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * Property name MUST be prefixed with an association alias!
+     * 
+     * @param propertyPath property name prefixed with an association alias
      * @param operator comparison operator
      * @param argument argument
      * @return Criterion
      */
-    protected Criterion createCriterion(String property, Comparison operator, Object argument) {
+    protected Criterion createCriterion(String propertyPath, Comparison operator, Object argument) {
         LOG.trace("Creating criterion: {} {} {}", 
-                new Object[]{property, operator, argument});
+                new Object[]{propertyPath, operator, argument});
         
         switch (operator) {
             case EQUAL : {
                 if (containWildcard(argument)) {
-                    return createLike(property, argument);
+                    return createLike(propertyPath, argument);
                 } else {
-                    return createEqual(property, argument);
+                    return createEqual(propertyPath, argument);
                 }
             }
             case NOT_EQUAL : {
                 if (containWildcard(argument)) {
-                    return createNotLike(property, argument);
+                    return createNotLike(propertyPath, argument);
                 } else {
-                    return createNotEqual(property, argument);
+                    return createNotEqual(propertyPath, argument);
                 }
             }
-            case GREATER_THAN : return createGreaterThan(property, argument);
-            case GREATER_EQUAL : return createGreaterEqual(property, argument);
-            case LESS_THAN : return createLessThan(property, argument);
-            case LESS_EQUAL : return createLessEqual(property, argument);
+            case GREATER_THAN : return createGreaterThan(propertyPath, argument);
+            case GREATER_EQUAL : return createGreaterEqual(propertyPath, argument);
+            case LESS_THAN : return createLessThan(propertyPath, argument);
+            case LESS_EQUAL : return createLessEqual(propertyPath, argument);
         }
         throw new IllegalArgumentException("Unknown operator: " + operator);
     }
@@ -115,94 +117,94 @@ public abstract class AbstractCriterionBuilder {
     /**
      * Apply an "equal" constraint to the named property.
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createEqual(String property, Object argument) {
-        return Restrictions.eq(property, argument);
+    protected Criterion createEqual(String propertyPath, Object argument) {
+        return Restrictions.eq(propertyPath, argument);
     }
     
     /**
      * Apply a case-insensitive "like" constraint to the named property. Value
      * should contains wildcards "*" (% in SQL) and "_".
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createLike(String property, Object argument) {
+    protected Criterion createLike(String propertyPath, Object argument) {
         String like = (String)argument;
         like = like.replace(LIKE_WILDCARD, '%');
         
-        return Restrictions.ilike(property, like);
+        return Restrictions.ilike(propertyPath, like);
     }    
     
     /**
      * Apply a "not equal" constraint to the named property.
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createNotEqual(String property, Object argument) {
-        return Restrictions.ne(property, argument);
+    protected Criterion createNotEqual(String propertyPath, Object argument) {
+        return Restrictions.ne(propertyPath, argument);
     }
     
     /**
      * Apply a negative case-insensitive "like" constraint to the named property. 
      * Value should contains wildcards "*" (% in SQL) and "_".
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument Value with wildcards.
      * @return Criterion
      */
-    protected Criterion createNotLike(String property, Object argument) {        
-        return Restrictions.not(createLike(property, argument));
+    protected Criterion createNotLike(String propertyPath, Object argument) {        
+        return Restrictions.not(createLike(propertyPath, argument));
     }
     
     /**
      * Apply a "greater than" constraint to the named property.
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createGreaterThan(String property, Object argument) {
-        return Restrictions.gt(property, argument);
+    protected Criterion createGreaterThan(String propertyPath, Object argument) {
+        return Restrictions.gt(propertyPath, argument);
     }
     
     /**
      * Apply a "greater than or equal" constraint to the named property.
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createGreaterEqual(String property, Object argument) {
-        return Restrictions.ge(property, argument);
+    protected Criterion createGreaterEqual(String propertyPath, Object argument) {
+        return Restrictions.ge(propertyPath, argument);
     }
     
     /**
      * Apply a "less than" constraint to the named property.
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createLessThan(String property, Object argument) {
-        return Restrictions.lt(property, argument);
+    protected Criterion createLessThan(String propertyPath, Object argument) {
+        return Restrictions.lt(propertyPath, argument);
     }
     
     /**
      * Apply a "less than or equal" constraint to the named property.
      * 
-     * @param property Property name, may be prefixed with an alias.
+     * @param propertyPath property name prefixed with an association alias
      * @param argument value
      * @return Criterion
      */
-    protected Criterion createLessEqual(String property, Object argument) {
-        return Restrictions.le(property, argument);
+    protected Criterion createLessEqual(String propertyPath, Object argument) {
+        return Restrictions.le(propertyPath, argument);
     }
     
     /**
@@ -223,68 +225,7 @@ public abstract class AbstractCriterionBuilder {
         }
         
         return false;
-    }
-    
-    /**
-     * Parse given string argument as the specified class type. Supported types 
-     * are String, Integer, Long, Float, Boolean, Enum and Date. If neither one 
-     * of them match, try to invoke valueOf(String s) method via reflection on
-     * the type's class.
-     * 
-     * @param <T> class type
-     * @param argument string argument
-     * @param type class type
-     * @return The instance of the given argument in the specified type.
-     * @throws ArgumentFormatException If the given argument is not parseable 
-     *         to the specified type.
-     * @throws IllegalArgumentException If the specified type is not supported.
-     */
-    protected <T> T parseArgument(String argument, Class<T> type) 
-            throws ArgumentFormatException, IllegalArgumentException {
-
-        LOG.trace("Parsing argument {} as type {}", argument, type.getSimpleName());
-        
-        // common types
-        try {
-            if (type.equals(String.class)) return (T) argument;
-            if (type.equals(Integer.class)) return (T) Integer.valueOf(argument);
-            if (type.equals(Boolean.class)) return (T) Boolean.valueOf(argument);
-            if (type.isEnum()) return (T) Enum.valueOf((Class<Enum>)type, argument);
-            if (type.equals(Float.class)) return (T) Float.valueOf(argument);
-            if (type.equals(Long.class)) return (T) Long.valueOf(argument);
-        } catch (IllegalArgumentException ex) {
-            throw new ArgumentFormatException(argument, type);
-        }
-        
-        // date
-        if (type.equals(Date.class)) {
-            try {
-                return (T) DATE_TIME_FORMATTER.parse(argument);
-            } catch (ParseException ex) {}
-            try {
-                return (T) DATE_FORMATTER.parse(argument);
-            } catch (ParseException ex1) {
-                throw new ArgumentFormatException(argument, type);
-            }
-        }
-        
-        // try to parse via valueOf(String s) method
-        try {
-            LOG.trace("Trying to get and invoke valueOf(String s) method on {}", type);
-            Method method = type.getMethod("valueOf", String.class);
-            return (T) method.invoke(type, argument);
-            
-        } catch (NoSuchMethodException ex) {
-            LOG.warn("{} does not have method valueOf(String s)", type);
-        } catch (InvocationTargetException ex) {
-            throw new ArgumentFormatException(argument, type);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        
-        throw new IllegalArgumentException("Cannot parse argument type " + type);
-    }
-    
+    }   
     
     /**
      * Check if entity of specified class metadata contains given property.

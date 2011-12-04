@@ -37,26 +37,28 @@ public class IdentifierCriterionBuilder extends AbstractCriterionBuilder {
     
     
     @Override
-    public boolean canAccept(String property, Comparison operator, CriteriaBuilder builder) {      
-        return isPropertyName(property, builder.getClassMetadata()) 
-                && isAssociationType(property, builder.getClassMetadata());
+    public boolean accept(String property, Class<?> entityClass, CriteriaBuilder builder) {
+        ClassMetadata metadata = builder.getClassMetadata(entityClass);
+        
+        return isPropertyName(property, metadata) && isAssociationType(property, metadata);
     }
 
     @Override
     public Criterion createCriterion(String property, Comparison operator, 
-            String argument, CriteriaBuilder builder) 
+            String argument, Class<?> entityClass, String alias, CriteriaBuilder builder) 
             throws ArgumentFormatException, UnknownSelectorException {
             
-        Class<?> type = findPropertyType(property, builder.getClassMetadata());
+        Class<?> type = findPropertyType(property, builder.getClassMetadata(entityClass));
         ClassMetadata assocClassMetadata = builder.getClassMetadata(type);
         Class<?> idType = assocClassMetadata.getIdentifierType().getReturnedClass();
         
         LOG.debug("Property is association type {}, parsing argument to ID type {}", 
                 type, idType.getSimpleName());
         
-        Object parsedArgument = parseArgument(argument, idType);
+        Object parsedArgument = builder.getArgumentParser().parse(argument, idType);
+        String propertyPath = alias + property + ".id";
         
-        return createCriterion(property + ".id", operator, parsedArgument);
+        return createCriterion(propertyPath, operator, parsedArgument);
     }
 
     /**
@@ -71,6 +73,7 @@ public class IdentifierCriterionBuilder extends AbstractCriterionBuilder {
     protected boolean isAssociationType(String property, ClassMetadata classMetadata) 
             throws HibernateException {
         Type type = classMetadata.getPropertyType(property);
+        
         return type.isEntityType() && !type.isCollectionType();
     }
     

@@ -22,7 +22,7 @@ import org.hibernate.criterion.Criterion;
 /**
  * Default implementation of Criterion Builder that simply creates 
  * <tt>Criterion</tt> for a basic property (not association). This should be the 
- * last builder in stack because its <tt>canAccept()</tt> method always returns 
+ * last builder in stack because its <tt>accept()</tt> method always returns 
  * <tt>true</tt>. Before creating a Criterion, property name is checked if it's 
  * valid and {@link UnknownSelectorException} is thrown if not.
  * 
@@ -32,23 +32,23 @@ public class DefaultCriterionBuilder extends AbstractCriterionBuilder {
     
     
     @Override
-    public boolean canAccept(String property, Comparison operator, CriteriaBuilder builder) {
+    public boolean accept(String property, Class<?> entityClass, CriteriaBuilder builder) {
         return true;
     }
     
     @Override
     public Criterion createCriterion(String property, Comparison operator, 
-            String argument, CriteriaBuilder builder) 
+            String argument, Class<?> entityClass, String alias, CriteriaBuilder builder) 
             throws ArgumentFormatException, UnknownSelectorException {
         
-        if (!isPropertyName(property, builder.getClassMetadata())) {
+        if (!isPropertyName(property, builder.getClassMetadata(entityClass))) {
             throw new UnknownSelectorException(property);
         }
         
-        Class<?> type = findPropertyType(property, builder.getClassMetadata());
-        Object castedArgument = parseArgument(argument, type);
+        Class<?> type = findPropertyType(property, builder.getClassMetadata(entityClass));
+        Object castedArgument = builder.getArgumentParser().parse(argument, type);
         
-        return createCriterion(property, operator, castedArgument);
+        return createCriterion(alias + property, operator, castedArgument);
     }
     
 }

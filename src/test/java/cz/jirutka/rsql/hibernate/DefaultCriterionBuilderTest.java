@@ -33,14 +33,15 @@ public class DefaultCriterionBuilderTest extends AbstractCriterionBuilderTest {
     @Before
     public void setUp() throws Exception {
         instance = new DefaultCriterionBuilder();
-        parent = new MockCriterionBuilder(Course.class);
+        entityClass = Course.class;
+        parent = new MockInnerBuilder(Course.class);
         sessionFactory = SessionFactoryInitializer.getSessionFactory();
     }
     
     
     @Test
     public void testAccept() {
-        assertTrue(instance.canAccept("whatever", Comparison.EQUAL, parent));
+        assertTrue(instance.accept("whatever", entityClass, parent));
     }
 
     @Test
@@ -48,18 +49,18 @@ public class DefaultCriterionBuilderTest extends AbstractCriterionBuilderTest {
         Criterion expResult;
         Criterion result;
         
-        expResult = Restrictions.eq("code", "MI-MDW");
-        result = instance.createCriterion("code", Comparison.EQUAL, "MI-MDW", parent);
+        expResult = Restrictions.eq("that.code", "MI-MDW");
+        result = instance.createCriterion("code", Comparison.EQUAL, "MI-MDW", entityClass, "that.", parent);
         //equals() on Criterion doesn't work here, hence toString()
         assertEquals(expResult.toString(), result.toString());
 
         try {
-            result = instance.createCriterion("invalid", Comparison.EQUAL, "MI-W20", parent);
+            result = instance.createCriterion("invalid", Comparison.EQUAL, "MI-W20", entityClass, "that.", parent);
             fail("Should raise an UnknownSelectorException");
         } catch (UnknownSelectorException ex) { /*OK*/ }
         
         try {
-            result = instance.createCriterion("credits", Comparison.LESS_EQUAL, "non-number", parent);
+            result = instance.createCriterion("credits", Comparison.LESS_EQUAL, "non-number", entityClass, "that.", parent);
             fail("Should raise an ArgumentFormatException");
         } catch (ArgumentFormatException ex) { /*OK*/ }
         

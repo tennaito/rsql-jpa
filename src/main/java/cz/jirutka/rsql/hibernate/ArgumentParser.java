@@ -17,20 +17,24 @@
 package cz.jirutka.rsql.hibernate;
 
 /**
- * Provides mapping of selectors in RSQL to property names of entities.
+ * Interface for Argument Parser that is used for parsing given string argument
+ * from RSQL query according to type of the target property.
  * 
  * @author Jakub Jirutka <jakub@jirutka.cz>
  */
-public interface Mapper {
+public interface ArgumentParser {
     
     /**
-     * Translate given selector to the mapped property name or dot-separated
-     * path of the property.
+     * Parse given string argument as the specified class type.
      * 
-     * @param selector Selector that identifies some element of an entry's content.
-     * @param entityClass entity class
-     * @return Property name or dot-separated path of the property.
+     * @param <T> class type
+     * @param argument string argument
+     * @param type class type
+     * @return The instance of the given argument in the specified type.
+     * @throws ArgumentFormatException If the given argument is not parseable 
+     *         to the specified type.
+     * @throws IllegalArgumentException If the specified type is not supported.
      */
-    String translate(String selector, Class<?> entityClass);
-    
+    <T> T parse(String argument, Class<T> type) 
+            throws ArgumentFormatException, IllegalArgumentException;
 }

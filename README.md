@@ -81,11 +81,11 @@ Combine your _Criteria_ query and RSQL query from user:
 Add _MySpecialCriterionBuilder_ and provided ones to all _RSQL2CriteriaConverter_ instances:
 
     List<AbstractCriterionBuilder> builders = new ArrayList(4);
-    builders.add(new DefaultCriterionBuilder());
-    builders.add(new IdentifierCriterionBuilder());
-    builders.add(new NaturalIdCriterionBuilder());
-    builders.add(new AssociationsCriterionBuilder());
     builders.add(new MySpecialCriterionBuilder());
+    builders.add(new AssociationsCriterionBuilder());
+    builders.add(new NaturalIdCriterionBuilder());
+    builders.add(new IdentifierCriterionBuilder());
+    builders.add(new DefaultCriterionBuilder());
 
     factory.setCriterionBuilders(builders);
 

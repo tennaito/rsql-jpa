@@ -74,18 +74,32 @@ Combine your _Criteria_ query and RSQL query from user:
 
 ```java
 // specify your static query
-Criteria criteria = currentSession().createCriteria(Course.class, "c")
+Criteria criteria = session.createCriteria(Course.class, "c")
 		.createCriteria("courseInProgrammes")
 		    .add(Restrictions.eq("programme", programme))
 		.addOrder(Order.asc("c.name"));
 
-// append user’s RSQL query to given criteria
+// merge user’s RSQL query with given criteria
 converter.extendCriteria("name==web*;department.code==12345", Course.class, criteria)
 
 // execute query and get result
 List<Course> result = criteria.list();
 ```
 
+…or with provided _Criteria_ decorator:
+
+```java
+Criteria criteria = session.createCriteria(Course.class, "c");
+
+List<Course> result = new RSQLCriteriaDecorator(criteria)
+		.createCriteria("courseInProgrammes")
+		    .add(Restrictions.eq("programme", programme))
+		.addOrder(Order.asc("c.name"))
+		.setRSQLConverter(converter)
+		.mergeRSQLQuery("name==web*;department.code==12345")
+		.list();
+```
+	
 Add _MySpecialCriterionBuilder_ and provided ones to all _RSQL2CriteriaConverter_ instances:
 
 ```java
@@ -209,18 +223,19 @@ If you’re using Maven2, simply add these lines to your _pom.xml_:
     <dependency>
         <groupId>cz.jirutka.rsql</groupId>
         <artifactId>rsql-hibernate</artifactId>
-        <version>1.1</version>
+        <version>1.1.2</version>
     </dependency>
 </dependencies>
 ```
 
 ### Manual download
 
-Otherwise, download jar file from [here](https://github.com/downloads/jirutka/rsql-hibernate/rsql-hibernate-1.1.jar).
+Otherwise, download jar file from [here](https://github.com/downloads/jirutka/rsql-hibernate/rsql-hibernate-1.1.2.jar).
 
 Compile dependencies:
 
 * [rsql-parser](https://github.com/jirutka/rsql-parser)
+* [commons-hibernate](https://github.com/jirutka/commons-hibernate)
 * [hibernate-core](http://www.hibernate.org/downloads.html)
 * [slf4j-api](http://www.slf4j.org/download.html)
 

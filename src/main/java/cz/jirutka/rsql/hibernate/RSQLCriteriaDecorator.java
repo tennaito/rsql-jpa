@@ -16,7 +16,7 @@
  */
 package cz.jirutka.rsql.hibernate;
 
-import cz.jirutka.commons.hibernate.AbstractCriteriaDecorator;
+import cz.jirutka.commons.hibernate.criteria.AbstractCriteriaDecorator;
 import org.hibernate.Criteria;
 
 /**

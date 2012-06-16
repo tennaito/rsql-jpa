@@ -68,7 +68,7 @@
         <dependency>
             <groupId>cz.jirutka.commons</groupId>
             <artifactId>commons-hibernate</artifactId>
-            <version>1.0</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>

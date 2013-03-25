@@ -202,49 +202,21 @@ Now some real examples of RSQL queries.
     - /courses?query=name==*services*&orderBy=name&maxResults=50 - name constains "services", order by name and limit output to maximum 50 results
 
 
-## Download
-
-RSQL-parser uses Maven2 as its build tool.
-
-### Maven artifact
- 
-If you’re using Maven2, simply add these lines to your _pom.xml_:
+## Maven
 
 ```xml
-<repositories>
-    <repository>
-        <id>jirutka.cz</id>
-        <name>Repository with RSQL</name>
-        <url>http://repos.jirutka.cz/maven/</url>
-    </repository>
-</repositories>
+<dependency>
+    <groupId>cz.jirutka.rsql</groupId>
+    <artifactId>rsql-hibernate</artifactId>
+    <version>1.1.2</version>
+</dependency>
 
-<dependencies>
-    <dependency>
-        <groupId>cz.jirutka.rsql</groupId>
-        <artifactId>rsql-hibernate</artifactId>
-        <version>1.1.2</version>
-    </dependency>
-</dependencies>
+<repository>
+    <id>cvut-local-repos</id>
+    <name>CVUT Repository Local</name>
+    <url>http://repository.fit.cvut.cz/maven/local-repos/</url>
+</repository>
 ```
-
-### Manual download
-
-Otherwise, download jar file from [here](https://github.com/downloads/jirutka/rsql-hibernate/rsql-hibernate-1.1.2.jar).
-
-Compile dependencies:
-
-* [rsql-parser](https://github.com/jirutka/rsql-parser)
-* [commons-hibernate](https://github.com/jirutka/commons-hibernate)
-* [hibernate-core](http://www.hibernate.org/downloads.html)
-* [slf4j-api](http://www.slf4j.org/download.html)
-
-Test dependencies:
-
-* [junit](https://github.com/KentBeck/junit/downloads)
-* [hsqldb](http://sourceforge.net/projects/hsqldb/files/hsqldb/)
-* [hibernate-entitymanager](http://www.hibernate.org/downloads.html)
-
 
 ## License
 

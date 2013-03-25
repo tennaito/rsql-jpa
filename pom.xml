@@ -1,5 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
       
     <modelVersion>4.0.0</modelVersion>
 
@@ -7,6 +8,9 @@
     <artifactId>rsql-hibernate</artifactId>
     <version>1.1.2</version>
     <packaging>jar</packaging>
+
+
+    <!--//////////////////// ABOUT ////////////////////-->
 
     <name>RSQL-hibernate</name>
     <inceptionYear>2011</inceptionYear>
@@ -16,10 +20,30 @@
         <developer>
             <name>Jakub Jirutka</name>
             <email>jakub@jirutka.cz</email>
-            <organization>CVUT FEL</organization>
-            <organizationUrl>http://fel.cvut.cz</organizationUrl>
+            <organization>CVUT</organization>
+            <organizationUrl>http://www.cvut.cz</organizationUrl>
         </developer>
     </developers>
+
+    <scm>
+        <url>http://github.com/jirutka/rsql-hibernate</url>
+        <connection>scm:git:git@github.com:jirutka/rsql-hibernate.git</connection>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>cvut-libs-release-local</id>
+            <name>CVUT Release Repository</name>
+            <url>http://repository.fit.cvut.cz/maven/libs-release-local/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>cvut-libs-snapshot-local</id>
+            <name>CVUT Snapshot Repository</name>
+            <url>http://repository.fit.cvut.cz/maven/libs-snapshot-local/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
     
     
     <!--//////////////////// PROPERTIES ////////////////////-->
@@ -33,24 +57,16 @@
   
     <repositories>
         <repository>
-            <id>jirutka.cz</id>
-            <name>My repository</name>
-            <url>http://repos.jirutka.cz/maven/</url>
+            <id>cvut-local-repos</id>
+            <name>CVUT Repository Local</name>
+            <url>http://repository.fit.cvut.cz/maven/local-repos/</url>
         </repository>
-        
-        <!-- Provides Hibernate and RESTEasy -->
+
         <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Maven Repository Group</name>
             <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
-        
     </repositories>
     
     
@@ -106,27 +122,31 @@
         </dependency>
         
     </dependencies>
-    
-    
-    <!--//////////////////// BUILD ////////////////////-->
 
-    <build>
-        <plugins>
-            <!-- Pack and deploy sources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-        </plugins>
-    </build>
+
+    <!--//////////////////// PROFILES ////////////////////-->
+
+    <profiles>
+        <profile>
+            <id>deploy-profile</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     
 </project>

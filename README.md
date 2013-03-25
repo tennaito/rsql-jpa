@@ -208,7 +208,7 @@ Now some real examples of RSQL queries.
 <dependency>
     <groupId>cz.jirutka.rsql</groupId>
     <artifactId>rsql-hibernate</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
 </dependency>
 
 <repository>
@@ -220,4 +220,4 @@ Now some real examples of RSQL queries.
 
 ## License
 
-This project is licensed under [LGPL version 3](http://www.gnu.org/licenses/lgpl.txt).
+This project is licensed under [MIT license](http://opensource.org/licenses/MIT).

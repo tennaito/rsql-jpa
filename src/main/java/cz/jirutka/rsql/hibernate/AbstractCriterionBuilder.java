@@ -17,7 +17,6 @@
 package cz.jirutka.rsql.hibernate;
 
 import cz.jirutka.rsql.parser.model.Comparison;
-import cz.jirutka.rsql.parser.model.ComparisonExpression;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -33,7 +32,9 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractCriterionBuilder {
     
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCriterionBuilder.class);
-    protected static final Character LIKE_WILDCARD = '*';
+
+    public static final Character LIKE_WILDCARD = '*';
+    public static final String NULL_ARGUMENT = "NULL";
     
     
     
@@ -95,6 +96,8 @@ public abstract class AbstractCriterionBuilder {
             case EQUAL : {
                 if (containWildcard(argument)) {
                     return createLike(propertyPath, argument);
+                } else if (isNullArgument(argument)) {
+                    return createIsNull(propertyPath);
                 } else {
                     return createEqual(propertyPath, argument);
                 }
@@ -102,6 +105,8 @@ public abstract class AbstractCriterionBuilder {
             case NOT_EQUAL : {
                 if (containWildcard(argument)) {
                     return createNotLike(propertyPath, argument);
+                } else if (isNullArgument(argument)) {
+                    return createIsNotNull(propertyPath);
                 } else {
                     return createNotEqual(propertyPath, argument);
                 }
@@ -138,7 +143,17 @@ public abstract class AbstractCriterionBuilder {
         like = like.replace(LIKE_WILDCARD, '%');
         
         return Restrictions.ilike(propertyPath, like);
-    }    
+    }
+
+    /**
+     * Apply an "is null" constraint to the named property.
+     *
+     * @param propertyPath property name prefixed with an association alias
+     * @return Criterion
+     */
+    protected Criterion createIsNull(String propertyPath) {
+        return Restrictions.isNull(propertyPath);
+    }
     
     /**
      * Apply a "not equal" constraint to the named property.
@@ -161,6 +176,16 @@ public abstract class AbstractCriterionBuilder {
      */
     protected Criterion createNotLike(String propertyPath, Object argument) {        
         return Restrictions.not(createLike(propertyPath, argument));
+    }
+
+    /**
+     * Apply an "is not null" constraint to the named property.
+     *
+     * @param propertyPath property name prefixed with an association alias
+     * @return Criterion
+     */
+    protected Criterion createIsNotNull(String propertyPath) {
+        return Restrictions.isNotNull(propertyPath);
     }
     
     /**
@@ -254,6 +279,14 @@ public abstract class AbstractCriterionBuilder {
     protected Class<?> findPropertyType(String property, ClassMetadata classMetadata) 
             throws HibernateException {
         return classMetadata.getPropertyType(property).getReturnedClass();
+    }
+
+    /**
+     * @param argument
+     * @return <tt>true</tt> if argument is null, <tt>false</tt> otherwise
+     */
+    protected boolean isNullArgument(Object argument) {
+        return NULL_ARGUMENT.equals(argument);
     }
 
 }

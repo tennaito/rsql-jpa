@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                      			 http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  			 version="2.0">
+	<persistence-unit name="persistenceUnit">
+		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+		<class>br.tennaito.rsql.jpa.entity.Course</class>
+		<class>br.tennaito.rsql.jpa.entity.Department</class>
+		<class>br.tennaito.rsql.jpa.entity.Person</class>
+		<properties>
+			<property name="javax.persistence.jdbc.driver"   		 value="org.hsqldb.jdbcDriver" />
+			<property name="javax.persistence.jdbc.url"       		 value="jdbc:hsqldb:mem:ProductDAOTest" />
+			<property name="javax.persistence.jdbc.user"     		 value="sa" />
+			<property name="eclipselink.logging.level"       		 value="FINE"/>
+			<property name="eclipselink.target-database" 	 		 value="HSQL"/>
+			<property name="eclipselink.validate-existence"  		 value="true"/>
+			<property name="eclipselink.ddl-generation"      	     value="create-tables"/>
+			<property name="eclipselink.ddl-generation.output-mode"  value="database"/>
+		</properties>
+	</persistence-unit>
+</persistence>

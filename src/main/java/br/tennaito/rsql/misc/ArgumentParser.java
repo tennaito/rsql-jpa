@@ -2,6 +2,7 @@
  * The MIT License
  *
  * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
+ * Copyright 2015 Antonio Rabelo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,65 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate.entity;
+package br.tennaito.rsql.misc;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import org.hibernate.annotations.NaturalId;
 
 /**
+ * Interface for Argument Parser that is used for parsing given string argument
+ * from RSQL query according to type of the target property.
  *
  * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author AntonioRabelo
  */
-@Entity
-public class Course extends AbstractTestEntity {
-    
-    @Column
-    private boolean active;
-    
-    @Column
-    @NaturalId
-    private String code;
-    
-    @Column
-    private Integer credits;
-    
-    @ManyToOne
-    private Department department;
+public interface ArgumentParser {
 
-    
-    
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    public Integer getCredits() {
-        return credits;
-    }
-
-    public void setCredits(Integer credits) {
-        this.credits = credits;
-    }
-
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
+    /**
+     * Parse given string argument as the specified class type.
+     *
+     * @param <T> class type
+     * @param argument string argument
+     * @param type class type
+     * @return The instance of the given argument in the specified type.
+     * @throws ArgumentFormatException If the given argument is not parseable
+     *         to the specified type.
+     * @throws IllegalArgumentException If the specified type is not supported.
+     */
+    <T> T parse(String argument, Class<T> type)
+            throws ArgumentFormatException, IllegalArgumentException;
 }

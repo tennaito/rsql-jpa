@@ -21,10 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate;
+package br.tennaito.rsql.jpa;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
 import org.junit.Test;
+
+import br.tennaito.rsql.misc.ArgumentParser;
+import br.tennaito.rsql.misc.DefaultArgumentParser;
 import static org.junit.Assert.*;
 
 /**

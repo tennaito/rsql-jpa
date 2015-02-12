@@ -2,6 +2,7 @@
  * The MIT License
  *
  * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
+ * Copyright 2015 Antonio Rabelo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate;
+package br.tennaito.rsql.misc;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,31 +30,33 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of {@linkplain ArgumentParser}. Supported types 
- * are String, Integer, Long, Float, Boolean, Enum and Date. If neither one 
+ * Default implementation of {@linkplain ArgumentParser}. Supported types
+ * are String, Integer, Long, Float, Boolean, Enum and Date. If neither one
  * of them match, it tries to invoke valueOf(String s) method via reflection on
  * the type's class.
- * 
+ *
  * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author AntonioRabelo
  */
 public class DefaultArgumentParser implements ArgumentParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultArgumentParser.class);
-    
+
     private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd"); //ISO 8601
     private static final DateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //ISO 8601
-    
-    
+
+
     @Override
     public <T> T parse(String argument, Class<T> type)
             throws ArgumentFormatException, IllegalArgumentException {
-        
+
         LOG.trace("Parsing argument '{}' as type {}", argument, type.getSimpleName());
-        
+
         // common types
         try {
             if (type.equals(String.class)) return (T) argument;
@@ -66,7 +69,7 @@ public class DefaultArgumentParser implements ArgumentParser {
         } catch (IllegalArgumentException ex) {
             throw new ArgumentFormatException(argument, type);
         }
-        
+
         // date
         if (type.equals(Date.class)) {
             try {
@@ -78,13 +81,13 @@ public class DefaultArgumentParser implements ArgumentParser {
                 throw new ArgumentFormatException(argument, type);
             }
         }
-        
+
         // try to parse via valueOf(String s) method
         try {
             LOG.trace("Trying to get and invoke valueOf(String s) method on {}", type);
             Method method = type.getMethod("valueOf", String.class);
             return (T) method.invoke(type, argument);
-            
+
         } catch (NoSuchMethodException ex) {
             LOG.warn("{} does not have method valueOf(String s)", type);
         } catch (InvocationTargetException ex) {
@@ -92,9 +95,9 @@ public class DefaultArgumentParser implements ArgumentParser {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-        
+
         throw new IllegalArgumentException("Cannot parse argument type " + type);
     }
 
-    
+
 }

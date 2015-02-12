@@ -2,6 +2,7 @@
  * The MIT License
  *
  * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
+ * Copyright 2015 Antonio Rabelo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,42 +22,71 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate.entity;
+package br.tennaito.rsql.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
-import org.hibernate.annotations.NaturalId;
 
 /**
  *
  * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author Antonio Rabelo
  */
 @Entity
-public class Department extends AbstractTestEntity {
-    
-    @Column
-    @NaturalId
-    private Integer code;
-    
-    @ManyToOne
-    private Person head;
+public class Course extends AbstractTestEntity {
 
-    
-    public Integer getCode() {
+    @Column
+    private boolean active;
+
+    @Id
+    private String code;
+
+    @Column
+    private Integer credits;
+
+    @ManyToOne
+    @JoinColumns({
+    	@JoinColumn(name="id", referencedColumnName="id", insertable=false, updatable=false),
+    	@JoinColumn(name="code", referencedColumnName="code", insertable=false, updatable=false)
+    })
+    private Department department;
+
+
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
-    public Person getHead() {
-        return head;
+    public Integer getCredits() {
+        return credits;
     }
 
-    public void setHead(Person head) {
-        this.head = head;
+    public void setCredits(Integer credits) {
+        this.credits = credits;
     }
-    
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
 }

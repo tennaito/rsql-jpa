@@ -21,27 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate;
+package br.tennaito.rsql.jpa.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 /**
- * This is a wrapper exception for {@link ParseException},
- * {@link ArgumentFormatException}, {@link JoinsLimitException} and
- * {@link UnknownSelectorException}.
- * 
+ *
  * @author Jakub Jirutka <jakub@jirutka.cz>
  */
-public class RSQLException extends RuntimeException {
-
-    /**
-     * Constructs a <tt>RSQLException</tt> with the specified cause and a detail 
-     * message of (cause==null ? null : cause.toString()) (which typically 
-     * contains the class and detail message of cause).
-     * 
-     * @param cause The cause (which is saved for later retrieval by the 
-     *        Throwable.getCause() method).
-     */
-    public RSQLException(Throwable cause) {
-        super(cause);
-    }
+@Entity
+public class Person extends AbstractTestEntity {
     
+    @Column
+    private String surname;
+
+    
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
 }

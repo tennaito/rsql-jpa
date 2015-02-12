@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
+ * Copyright 2015 Antonio Rabelo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,40 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate.entity;
+package br.tennaito.rsql.jpa;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
- *
- * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author Antonio Rabelo
  */
-@MappedSuperclass
-public abstract class AbstractTestEntity {
-    
-    @Id
-    private Long id;
-    
-    @Column
-    private String name;
+public class EntityManagerFactoryInitializer {
 
-    
-    public Long getId() {
-        return id;
-    }
+    private static EntityManagerFactory instance;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
-    public String getName() {
-        return name;
-    }
+    public static EntityManagerFactory getEntityManagerFactory() {
+        if (instance != null) return instance;
+        instance = Persistence.createEntityManagerFactory("persistenceUnit");
 
-    public void setName(String name) {
-        this.name = name;
+        return instance;
     }
-    
 }

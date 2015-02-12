@@ -21,40 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate;
+package br.tennaito.rsql.jpa.entity;
 
-import cz.jirutka.rsql.hibernate.entity.Department;
-import cz.jirutka.rsql.hibernate.entity.Person;
-import cz.jirutka.rsql.hibernate.entity.Course;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
-import org.hibernate.dialect.HSQLDialect;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 /**
  *
  * @author Jakub Jirutka <jakub@jirutka.cz>
  */
-public class SessionFactoryInitializer {
+@MappedSuperclass
+public abstract class AbstractTestEntity {
     
-    private static SessionFactory instance;
+    @Id
+    private Long id;
     
-    
-    public static SessionFactory getSessionFactory() {
-        if (instance != null) return instance;
-        
-        Configuration configuration = new Configuration();
-        configuration.setProperty(Environment.DRIVER, "org.hsqldb.jdbcDriver");
-        configuration.setProperty(Environment.URL, "jdbc:hsqldb:mem:ProductDAOTest");
-        configuration.setProperty(Environment.USER, "sa");
-        configuration.setProperty(Environment.DIALECT, HSQLDialect.class.getName());
-        configuration.setProperty(Environment.SHOW_SQL, "true");
-        configuration.addAnnotatedClass(Course.class);
-        configuration.addAnnotatedClass(Department.class);
-        configuration.addAnnotatedClass(Person.class);
+    @Column
+    private String name;
 
-        instance = configuration.buildSessionFactory();
-        
-        return instance;
+    
+    public Long getId() {
+        return id;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
 }

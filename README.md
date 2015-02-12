@@ -1,8 +1,10 @@
-# RSQL for Hibernate
+# RSQL for JPA
+
+# TODO DOCUMENTATION
 
 RESTful Service Query Language (RSQL) is a language and a library designed for searching entries in RESTful services.
 
-This library provides convertor of [RSQL expression](https://github.com/jirutka/rsql-parser) to Hibernate’s [Criteria Query](http://docs.jboss.org/hibernate/core/3.5/reference/en/html/querycriteria.html) (object representation of HQL), which is translated to SQL query. RSQL was originally created for [KOSapi](https://kosapi.feld.cvut.cz) - RESTful web services for IS at the Czech Technical University in Prague. 
+This library provides visitor of [RSQL expression](https://github.com/jirutka/rsql-parser) to JPA [Criteria Query](http://docs.jboss.org/hibernate/core/3.5/reference/en/html/querycriteria.html) (object representation of HQL), which is translated to SQL query. RSQL was originally created for [KOSapi](https://kosapi.feld.cvut.cz) - RESTful web services for IS at the Czech Technical University in Prague. 
 
 Feel free to contribute!
 

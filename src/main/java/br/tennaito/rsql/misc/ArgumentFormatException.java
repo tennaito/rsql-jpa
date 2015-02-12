@@ -2,6 +2,7 @@
  * The MIT License
  *
  * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
+ * Coryright 2015 Antonio Rabelo.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,27 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package cz.jirutka.rsql.hibernate;
+package br.tennaito.rsql.misc;
 
 /**
- * Indicate that argument is not in suitable format required by entity's 
+ * Indicate that argument is not in suitable format required by entity's
  * property, i.e. is not parseable to the specified type.
  *
  * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author AntonioRabelo
  */
-public class ArgumentFormatException extends Exception {
-    
+public class ArgumentFormatException extends RuntimeException {
+
     private final String selector;
     private final String argument;
     private final Class<?> propertyType;
 
-    
+
     /**
      * Construct an <tt>ArgumentFormatException</tt> with specified argument
      * and property type.
-     * 
+     *
      * @param argument
-     * @param propertyType 
+     * @param propertyType
      */
     public ArgumentFormatException(String argument, Class<?> propertyType) {
         super("Cannot cast '" + argument + "' to type " + propertyType);
@@ -52,10 +54,10 @@ public class ArgumentFormatException extends Exception {
     /**
      * Construct an <tt>ArgumentFormatException</tt> with specified selector,
      * argument and property type.
-     * 
+     *
      * @param selector
      * @param argument
-     * @param propertyType 
+     * @param propertyType
      */
     public ArgumentFormatException(String selector, String argument, Class<?> propertyType) {
         super("Argument '" + argument + "' of " + selector + " must be of type " + propertyType.getSimpleName());
@@ -64,7 +66,7 @@ public class ArgumentFormatException extends Exception {
         this.propertyType = propertyType;
     }
 
-    
+
     public String getArgument() {
         return argument;
     }
@@ -76,5 +78,5 @@ public class ArgumentFormatException extends Exception {
     public String getSelector() {
         return selector;
     }
-    
+
 }

@@ -23,53 +23,97 @@
  */
 package br.tennaito.rsql.jpa;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import br.tennaito.rsql.builder.BuilderTools;
+import br.tennaito.rsql.builder.SimpleBuilderTools;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
 /**
+ * JpaCriteriaQueryVisitor
+ *
+ * Visitor class for Criteria Query creation from RSQL AST Nodes.
+ *
  * @author AntonioRabelo
  *
  * @param <T> Entity type
  */
 public class JpaCriteriaQueryVisitor<T> implements RSQLVisitor<CriteriaQuery<T>, EntityManager> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(JpaCriteriaQueryVisitor.class);
+	private static final Logger LOG = Logger.getLogger(JpaCriteriaQueryVisitor.class.getName());
 
 	protected Class<T> entityClass;
 
+	protected BuilderTools builderTools;
+
+	/**
+	 * Construtor with template varargs for entityClass discovery.
+	 *
+	 * @param t not for usage
+	 */
 	public JpaCriteriaQueryVisitor(T... t) {
+		// getting class from template... :P
 		entityClass = (Class<T>)t.getClass().getComponentType();
 	}
 
+	/**
+	 * Get builder tools.
+	 *
+	 * @return BuilderTools.
+	 */
+	public BuilderTools getBuilderTools() {
+		if (this.builderTools == null) {
+			this.builderTools = new SimpleBuilderTools();
+		}
+		return this.builderTools;
+	}
+
+	/**
+	 * Set a predicate strategy.
+	 *
+	 * @param delegate PredicateBuilderStrategy.
+	 */
+	public void setBuilderTools(BuilderTools delegate) {
+		this.builderTools = delegate;
+	}
+
+	/* (non-Javadoc)
+	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
+	 */
 	@Override
 	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
-		LOG.trace("Creating Predicate for: {}", node);
+		LOG.log(Level.INFO, "Creating Predicate for AndNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-		return criteria.where(PredicateBuilder.<T>createPredicate(node, entityClass, entityManager));
+		return criteria.where(PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools()));
 	}
 
+	/* (non-Javadoc)
+	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
+	 */
 	@Override
 	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
-		LOG.trace("Creating Predicate for: {}", node);
+		LOG.log(Level.INFO, "Creating Predicate for OrNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-		return criteria.where(PredicateBuilder.<T>createPredicate(node, entityClass, entityManager));
+		return criteria.where(PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools()));
 	}
 
+	/* (non-Javadoc)
+	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
+	 */
 	@Override
 	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
-		LOG.trace("Creating Predicate for: {}", node);
+		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-    	return criteria.where(PredicateBuilder.<T>createPredicate(node, entityClass, entityManager));
+    	return criteria.where(PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools()));
 	}
 }

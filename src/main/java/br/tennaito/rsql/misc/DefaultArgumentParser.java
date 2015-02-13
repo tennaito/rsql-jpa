@@ -29,10 +29,11 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Default implementation of {@linkplain ArgumentParser}. Supported types
@@ -45,17 +46,25 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultArgumentParser implements ArgumentParser {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultArgumentParser.class);
+	private static final Logger LOG = Logger.getLogger(DefaultArgumentParser.class.getName());
 
     private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd"); //ISO 8601
     private static final DateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //ISO 8601
 
 
+    /* (non-Javadoc)
+     * @see br.tennaito.rsql.misc.ArgumentParser#parse(java.lang.String, java.lang.Class)
+     */
     @Override
     public <T> T parse(String argument, Class<T> type)
             throws ArgumentFormatException, IllegalArgumentException {
 
-        LOG.trace("Parsing argument '{}' as type {}", argument, type.getSimpleName());
+    	LOG.log(Level.INFO, "Parsing argument '{0}' as type {1}", new Object[] {argument, type.getSimpleName()});
+
+        // Nullable object
+        if (argument == null || "null".equals(argument.trim().toLowerCase())) {
+        	return (T) null;
+        }
 
         // common types
         try {
@@ -74,7 +83,9 @@ public class DefaultArgumentParser implements ArgumentParser {
         if (type.equals(Date.class)) {
             try {
                 return (T) DATE_TIME_FORMATTER.parse(argument);
-            } catch (ParseException ex) {}
+            } catch (ParseException ex) {
+            	LOG.log(Level.INFO, "Not a date time format, lets try with date format.");
+            }
             try {
                 return (T) DATE_FORMATTER.parse(argument);
             } catch (ParseException ex1) {
@@ -84,20 +95,31 @@ public class DefaultArgumentParser implements ArgumentParser {
 
         // try to parse via valueOf(String s) method
         try {
-            LOG.trace("Trying to get and invoke valueOf(String s) method on {}", type);
+        	LOG.log(Level.INFO, "Trying to get and invoke valueOf(String s) method on {0}", type);
             Method method = type.getMethod("valueOf", String.class);
             return (T) method.invoke(type, argument);
-
         } catch (NoSuchMethodException ex) {
-            LOG.warn("{} does not have method valueOf(String s)", type);
+        	LOG.log(Level.WARNING, "{0} does not have method valueOf(String s)", type);
         } catch (InvocationTargetException ex) {
-            throw new ArgumentFormatException(argument, type);
+        	throw new ArgumentFormatException(argument, type);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        	throw new RuntimeException(ex);
         }
 
         throw new IllegalArgumentException("Cannot parse argument type " + type);
     }
 
 
+	/* (non-Javadoc)
+	 * @see br.tennaito.rsql.misc.ArgumentParser#parse(java.util.List, java.lang.Class)
+	 */
+	@Override
+	public <T> List<T> parse(List<String> arguments, Class<T> type)
+			throws ArgumentFormatException, IllegalArgumentException {
+    	List<T> castedArguments = new ArrayList<T>(arguments.size());
+    	for (String argument : arguments) {
+    		castedArguments.add(this.parse(argument, type));
+    	}
+		return castedArguments;
+	}
 }

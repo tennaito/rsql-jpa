@@ -26,6 +26,14 @@ package br.tennaito.rsql.parser.ast;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
 
+/**
+ * ComparisonOperatorProxy Enum
+ *
+ * Convert RSQLOperators to an Enumeration type.
+ *
+ * @author AntonioRabelo
+ * @since 2015-02-10
+ */
 public enum ComparisonOperatorProxy {
 	EQUAL(RSQLOperators.EQUAL),
 	NOT_EQUAL(RSQLOperators.NOT_EQUAL),

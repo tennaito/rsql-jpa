@@ -28,11 +28,11 @@
     	</developer>
 	</developers>
     
-	<!--//////////////////// SCM     ///////////////////-->
+	<!--//////////////////// SCM    ////////////////////-->
     <scm>
         <url>https://github.com/tennaito/rsql-jpa</url>
-        <connection>scm:git:git@github.com:tennaito/rsql-jpa.git</connection>
-        <developerConnection>scm:git:git@github.com:tennaito/rsql-jpa.git</developerConnection>
+        <connection>scm:svn:https://github.com/tennaito/rsql-jpa</connection>
+        <developerConnection>scm:svn:https://github.com/tennaito/rsql-jpa</developerConnection>
   </scm>
 
     <!--//////////////////// PROPERTIES ////////////////////-->
@@ -96,17 +96,7 @@
 							<useReleaseProfile>false</useReleaseProfile>
 							<releaseProfiles>release</releaseProfiles>
 							<goals>deploy nexus-staging:release</goals>
-							<providerImplementations>
-								<git>jgit</git>
-							</providerImplementations>
 						</configuration>
-						<dependencies>
-							<dependency>
-								<groupId>org.apache.maven.scm</groupId>
-								<artifactId>maven-scm-provider-jgit</artifactId>
-								<version>1.9.2</version>
-							</dependency>
-						</dependencies>						
 					</plugin>
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>

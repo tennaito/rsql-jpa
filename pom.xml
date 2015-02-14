@@ -4,7 +4,7 @@
 
     <groupId>br.tennaito.rsql</groupId>
     <artifactId>rsql-jpa</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     <!--//////////////////// ABOUT ////////////////////-->
@@ -33,7 +33,6 @@
         <url>http://github.com/tennaito/rsql-jpa</url>
         <connection>scm:git:git@github.com:tennaito/rsql-jpa.git</connection>
         <developerConnection>scm:git:git@github.com:tennaito/rsql-jpa.git</developerConnection>
-    <tag>rsql-jpa-1.0.0</tag>
   </scm>
 
     <!--//////////////////// PROPERTIES ////////////////////-->

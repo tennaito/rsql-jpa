@@ -22,14 +22,19 @@
  * THE SOFTWARE.
  */
 package br.tennaito.rsql.jpa;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.Test;
 
+import br.tennaito.rsql.jpa.entity.Course;
+import br.tennaito.rsql.misc.ArgumentFormatException;
 import br.tennaito.rsql.misc.ArgumentParser;
 import br.tennaito.rsql.misc.DefaultArgumentParser;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -55,6 +60,15 @@ public class DefaultArgumentParserTest {
         expected = 123456;
         actual = instance.parse(argument, Integer.class);
         assertEquals(expected, actual);
+        
+        try {
+            argument = "abc";
+            expected = 123456;
+            actual = instance.parse(argument, Integer.class);
+            fail();
+        } catch (ArgumentFormatException e) {
+            assertEquals("Cannot cast '" + argument + "' to type " + Integer.class, e.getMessage());
+        }
         
         argument = "true";
         expected = true;
@@ -91,14 +105,44 @@ public class DefaultArgumentParserTest {
         actual = instance.parse(argument, Date.class);
         assertEquals(expected, actual);
         
+        try {
+            argument = "2011-08";
+            expected = new GregorianCalendar(2011, 7, 26, 14, 15, 30).getTime();
+            actual = instance.parse(argument, Date.class);
+            fail();
+        } catch (ArgumentFormatException e) {
+        	assertEquals("Cannot cast '" + argument + "' to type " + Date.class, e.getMessage());
+        }
+        
         argument = "foo";
         expected = new MockValueOfType();
         actual = instance.parse(argument, MockValueOfType.class);
         assertTrue(actual instanceof MockValueOfType);
         
-    }
-    
-    
+        try {
+        	argument = "foo";
+        	expected = new MockPrivateValueOfType();
+        	actual = instance.parse(argument, MockPrivateValueOfType.class);
+        } catch(IllegalArgumentException e) {
+        	assertEquals("Cannot parse argument type " + MockPrivateValueOfType.class, e.getMessage());
+        }
+        
+        try {
+        	argument = "foo";
+        	expected = new MockBrokenValueOfType();
+        	actual = instance.parse(argument, MockBrokenValueOfType.class);
+        } catch(ArgumentFormatException e) {
+        	assertEquals("Cannot cast '" + argument + "' to type " + MockBrokenValueOfType.class, e.getMessage());
+        }
+        
+        try {
+        	argument = "foo";
+        	expected = new Course();
+        	actual = instance.parse(argument, Course.class);
+        } catch(IllegalArgumentException e) {
+        	assertEquals("Cannot parse argument type " + Course.class, e.getMessage());
+        }
+    }    
     
     ////////////////////////// Mocks //////////////////////////
     
@@ -108,9 +152,22 @@ public class DefaultArgumentParserTest {
     
     protected static class MockValueOfType {
         
-        public static MockValueOfType valueOf(String s) {
+    	public static MockValueOfType valueOf(String s) {
             return new MockValueOfType();
         }
     }
     
+    protected static class MockPrivateValueOfType {
+        
+        private static MockPrivateValueOfType valueOf(String s) {
+            return new MockPrivateValueOfType();
+        }
+    }    
+    
+    protected static class MockBrokenValueOfType {
+        
+    	public static MockBrokenValueOfType valueOf(String s) {
+            throw new RuntimeException();
+        }
+    }    
 }

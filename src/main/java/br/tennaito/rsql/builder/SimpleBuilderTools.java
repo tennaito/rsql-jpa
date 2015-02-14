@@ -52,9 +52,9 @@ public class SimpleBuilderTools implements BuilderTools {
 	}
 
 	/* (non-Javadoc)
-	 * @see br.tennaito.rsql.builder.BuilderTools#setPropertiesMapper(br.tennaito.rsql.misc.ArgumentParser)
+	 * @see br.tennaito.rsql.builder.BuilderTools#setArgumentParser(br.tennaito.rsql.misc.ArgumentParser)
 	 */
-	public void setPropertiesMapper(ArgumentParser argumentParser) {
+	public void setArgumentParser(ArgumentParser argumentParser) {
 		this.argumentParser = argumentParser;
 	}
 

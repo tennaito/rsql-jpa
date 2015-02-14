@@ -65,7 +65,7 @@ public interface BuilderTools {
 	 *
 	 * @param argumentParser ArgumentParser
 	 */
-	public void setPropertiesMapper(ArgumentParser argumentParser);
+	public void setArgumentParser(ArgumentParser argumentParser);
 
 	/**
 	 * Get a predicate strategy for parsing Node into Predicate.

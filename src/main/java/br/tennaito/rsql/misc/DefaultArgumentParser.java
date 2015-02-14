@@ -97,15 +97,12 @@ public class DefaultArgumentParser implements ArgumentParser {
         	LOG.log(Level.INFO, "Trying to get and invoke valueOf(String s) method on {0}", type);
             Method method = type.getMethod("valueOf", String.class);
             return (T) method.invoke(type, argument);
-        } catch (NoSuchMethodException ex) {
-        	LOG.log(Level.WARNING, "{0} does not have method valueOf(String s)", type);
         } catch (InvocationTargetException ex) {
         	throw new ArgumentFormatException(argument, type);
-        } catch (Exception ex) {
-        	throw new RuntimeException(ex);
+        } catch (ReflectiveOperationException ex) {
+        	LOG.log(Level.WARNING, "{0} does not have method valueOf(String s) or method is inaccessible", type);
+        	throw new IllegalArgumentException("Cannot parse argument type " + type);
         }
-
-        throw new IllegalArgumentException("Cannot parse argument type " + type);
     }
 
 

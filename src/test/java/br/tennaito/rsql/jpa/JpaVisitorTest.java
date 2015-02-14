@@ -26,6 +26,8 @@ package br.tennaito.rsql.jpa;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +63,20 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
         entityClass = Course.class;
     }
 
+    @Test
+    public void testUnknowProperty() throws Exception {
+    	try {
+    		Node rootNode = new RSQLParser().parse("invalid==1");
+    		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+    		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+    		
+    		List<Course> courses = entityManager.createQuery(query).getResultList();
+    		fail();
+    	} catch (IllegalArgumentException e) {
+    		assertEquals("Unknown property: invalid from entity " + Course.class.getName(), e.getMessage());
+    	}
+    }
+    
     @Test
     public void testSimpleSelection() throws Exception {
     	Node rootNode = new RSQLParser().parse("id==1");
@@ -208,7 +224,15 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	Node rootNode = new RSQLParser(set).parse("id=def=1");
 
     	JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
-    	// define new operator resolver
+    	createDefOperator(visitor);
+
+    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+    }
+
+	private void createDefOperator(JpaCriteriaQueryVisitor<Course> visitor) {
+		// define new operator resolver
     	PredicateBuilderStrategy predicateStrategy = new PredicateBuilderStrategy() {
 			public <T> Predicate createPredicate(Node node, Class<T> entity,
 					EntityManager manager, BuilderTools tools)
@@ -219,11 +243,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 			}
 		};
     	visitor.getBuilderTools().setPredicateBuilder(predicateStrategy);
-
-    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
-		List<Course> courses = entityManager.createQuery(query).getResultList();
-		assertEquals("Testing Course", courses.get(0).getName());
-    }
+	}
 
     @Test
     public void testAssociationSelection() throws Exception {
@@ -269,4 +289,30 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
+    
+    @Test
+    public void testVariousNodesSelection() throws Exception {
+    	Node rootNode = new RSQLParser().parse("((department.id==1;id==2),id<3);department.id=out=(3,4,5)");
+    	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+    	List<Course> courses = entityManager.createQuery(query).getResultList();
+    	assertEquals("Testing Course", courses.get(0).getName());
+    }
+    
+    @Test
+    public void testSetBuilderTools() throws Exception {
+    	JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
+    	visitor.setBuilderTools(null);
+    	assertNotNull(visitor.getBuilderTools());
+    	
+    	visitor.getBuilderTools().setArgumentParser(null);
+    	assertNotNull(visitor.getBuilderTools().getArgumentParser());
+    	
+    	visitor.getBuilderTools().setPropertiesMapper(null);
+    	assertNotNull(visitor.getBuilderTools().getPropertiesMapper());
+    	
+    	visitor.getBuilderTools().setPredicateBuilder(null);
+    	assertNull(visitor.getBuilderTools().getPredicateBuilder());    	
+    }    
 }

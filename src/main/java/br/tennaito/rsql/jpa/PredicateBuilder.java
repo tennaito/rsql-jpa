@@ -168,7 +168,7 @@ public final class PredicateBuilder {
     				break;
     			}
     		} else {
-    			throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + argumentType.getName());
+    			throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
     		}
 		}
 

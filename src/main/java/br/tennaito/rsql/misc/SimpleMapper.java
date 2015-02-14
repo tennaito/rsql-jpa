@@ -57,7 +57,6 @@ public class SimpleMapper implements Mapper {
         mapping = new HashMap<Class<?>, Map<String, String>>(initialCapacity);
     }
 
-    @Override
     public String translate(String selector, Class<?> entityClass) {
         if (mapping.isEmpty()) return selector;
 

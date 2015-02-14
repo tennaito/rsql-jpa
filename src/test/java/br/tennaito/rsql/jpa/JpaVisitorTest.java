@@ -210,7 +210,6 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
     	// define new operator resolver
     	PredicateBuilderStrategy predicateStrategy = new PredicateBuilderStrategy() {
-			@Override
 			public <T> Predicate createPredicate(Node node, Class<T> entity,
 					EntityManager manager, BuilderTools tools)
 					throws IllegalArgumentException {

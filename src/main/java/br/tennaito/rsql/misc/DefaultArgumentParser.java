@@ -55,7 +55,6 @@ public class DefaultArgumentParser implements ArgumentParser {
     /* (non-Javadoc)
      * @see br.tennaito.rsql.misc.ArgumentParser#parse(java.lang.String, java.lang.Class)
      */
-    @Override
     public <T> T parse(String argument, Class<T> type)
             throws ArgumentFormatException, IllegalArgumentException {
 
@@ -113,7 +112,6 @@ public class DefaultArgumentParser implements ArgumentParser {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.misc.ArgumentParser#parse(java.util.List, java.lang.Class)
 	 */
-	@Override
 	public <T> List<T> parse(List<String> arguments, Class<T> type)
 			throws ArgumentFormatException, IllegalArgumentException {
     	List<T> castedArguments = new ArrayList<T>(arguments.size());

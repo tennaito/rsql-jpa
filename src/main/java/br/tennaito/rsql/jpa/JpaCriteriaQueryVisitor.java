@@ -87,7 +87,6 @@ public class JpaCriteriaQueryVisitor<T> implements RSQLVisitor<CriteriaQuery<T>,
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
 	 */
-	@Override
 	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for AndNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -98,7 +97,6 @@ public class JpaCriteriaQueryVisitor<T> implements RSQLVisitor<CriteriaQuery<T>,
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
 	 */
-	@Override
 	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for OrNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -109,7 +107,6 @@ public class JpaCriteriaQueryVisitor<T> implements RSQLVisitor<CriteriaQuery<T>,
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
 	 */
-	@Override
 	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();

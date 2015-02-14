@@ -47,7 +47,6 @@ public class SimpleBuilderTools implements BuilderTools {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.builder.BuilderTools#setPropertiesMapper(br.tennaito.rsql.misc.Mapper)
 	 */
-	@Override
 	public void setPropertiesMapper(Mapper mapper) {
 		this.mapper = mapper;
 	}
@@ -55,7 +54,6 @@ public class SimpleBuilderTools implements BuilderTools {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.builder.BuilderTools#setPropertiesMapper(br.tennaito.rsql.misc.ArgumentParser)
 	 */
-	@Override
 	public void setPropertiesMapper(ArgumentParser argumentParser) {
 		this.argumentParser = argumentParser;
 	}
@@ -63,7 +61,6 @@ public class SimpleBuilderTools implements BuilderTools {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.builder.BuilderTools#setPredicateBuilder(br.tennaito.rsql.jpa.PredicateBuilderStrategy)
 	 */
-	@Override
 	public void setPredicateBuilder(PredicateBuilderStrategy predicateStrategy) {
 		this.delegate = predicateStrategy;
 	}
@@ -71,7 +68,6 @@ public class SimpleBuilderTools implements BuilderTools {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.builder.BuilderTools#getPropertiesMapper()
 	 */
-	@Override
 	public Mapper getPropertiesMapper() {
 		if (this.mapper == null) {
 			this.mapper = new SimpleMapper();
@@ -82,7 +78,6 @@ public class SimpleBuilderTools implements BuilderTools {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.builder.BuilderTools#getArgumentParser()
 	 */
-	@Override
 	public ArgumentParser getArgumentParser() {
 		if (this.argumentParser == null) {
 			this.argumentParser = new DefaultArgumentParser();
@@ -93,7 +88,6 @@ public class SimpleBuilderTools implements BuilderTools {
 	/* (non-Javadoc)
 	 * @see br.tennaito.rsql.builder.BuilderTools#getPredicateBuilder()
 	 */
-	@Override
 	public PredicateBuilderStrategy getPredicateBuilder() {
 		return this.delegate;
 	}

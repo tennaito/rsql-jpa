@@ -96,8 +96,18 @@
 							<useReleaseProfile>false</useReleaseProfile>
 							<releaseProfiles>release</releaseProfiles>
 							<goals>deploy nexus-staging:release</goals>
+							<providerImplementations>
+								<git>jgit</git>
+							</providerImplementations>
 						</configuration>
-					</plugin>		
+						<dependencies>
+							<dependency>
+								<groupId>org.apache.maven.scm</groupId>
+								<artifactId>maven-scm-provider-jgit</artifactId>
+								<version>1.9.2</version>
+							</dependency>
+						</dependencies>						
+					</plugin>
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>

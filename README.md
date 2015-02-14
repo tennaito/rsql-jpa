@@ -1,5 +1,8 @@
 # RSQL for JPA
 
+[![Build Status](https://travis-ci.org/tennaito/rsql-jpa.svg)](https://travis-ci.org/tennaito/rsql-jpa)
+[![Coverage Status](https://coveralls.io/repos/tennaito/rsql-jpa/badge.svg)](https://coveralls.io/r/tennaito/rsql-jpa)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/br.tennaito.rsql/rsql-jpa/badge.svg?style=flat)](http://mvnrepository.com/artifact/br.tennaito.rsql/rsql-jpa)
 
 RESTful Service Query Language (RSQL) is a language and a library designed for searching entries in RESTful services.
 

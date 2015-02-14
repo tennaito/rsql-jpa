@@ -33,8 +33,12 @@ package br.tennaito.rsql.misc;
  */
 public class ArgumentFormatException extends RuntimeException {
 
-    private final String selector;
-    private final String argument;
+    /**
+	 * SERIAL UID
+	 */
+	private static final long serialVersionUID = 521849874508654920L;
+	
+	private final String argument;
     private final Class<?> propertyType;
 
 
@@ -47,21 +51,6 @@ public class ArgumentFormatException extends RuntimeException {
      */
     public ArgumentFormatException(String argument, Class<?> propertyType) {
         super("Cannot cast '" + argument + "' to type " + propertyType);
-        this.selector = null;
-        this.argument = argument;
-        this.propertyType = propertyType;
-    }
-    /**
-     * Construct an <tt>ArgumentFormatException</tt> with specified selector,
-     * argument and property type.
-     *
-     * @param selector
-     * @param argument
-     * @param propertyType
-     */
-    public ArgumentFormatException(String selector, String argument, Class<?> propertyType) {
-        super("Argument '" + argument + "' of " + selector + " must be of type " + propertyType.getSimpleName());
-        this.selector = selector;
         this.argument = argument;
         this.propertyType = propertyType;
     }
@@ -74,9 +63,4 @@ public class ArgumentFormatException extends RuntimeException {
     public Class<?> getPropertyType() {
         return propertyType;
     }
-
-    public String getSelector() {
-        return selector;
-    }
-
 }

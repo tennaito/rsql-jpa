@@ -65,21 +65,13 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
  */
 public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
+	final static XorNode xorNode = new XorNode(new ArrayList<Node>());
+	
     @Before
     public void setUp() throws Exception {
     	entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
         entityClass = Course.class;
     }
-    
-    @Test
-    public void testUnsupportedLogicalNode() throws Exception {
-    	try{
-    		PredicateBuilder.createPredicate(new XorNode(new ArrayList<Node>()), Course.class, entityManager, null);
-    		fail();
-    	} catch (IllegalArgumentException e) {
-    		assertEquals("Unknown operator: ^", e.getMessage());
-    	}
-    }    
 
     @Test
     public void testUnknowProperty() throws Exception {
@@ -344,6 +336,24 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	assertNull(visitor.getBuilderTools().getPredicateBuilder());    	
     }  
     
+    @Test
+    public void testUnsupportedLogicalNode() throws Exception {
+    	try{
+    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, Course.class, entityManager, null);
+    		fail();
+    	} catch (IllegalArgumentException e) {
+    		assertEquals("Unknown operator: ^", e.getMessage());
+    	}
+    }
+    
+    @Test
+    public void testPrivateConstructor() throws Exception {
+    	Constructor<PredicateBuilder> priv = PredicateBuilder.class.getDeclaredConstructor();
+    	priv.setAccessible(true);
+    	Object predicateBuilder = priv.newInstance();
+    	assertNotNull(predicateBuilder);
+    }    
+    
     ////////////////////////// Mocks //////////////////////////
     
     protected static class OtherNode extends AbstractNode {
@@ -387,22 +397,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 				Field ordinalField = Enum.class.getDeclaredField("ordinal");
 			    ordinalField.setAccessible(true);
 
-			    // we get the current Enum[]
 				LogicalOperator[] values = xor.values();
-				for (int i = 0; i < values.length; i++) {
-					LogicalOperator value = values[i];
-					if (value.name().equals(xor.name())) {
-						ordinalField.set(xor, value.ordinal());
-						values[i] = xor;
-						Field[] fields = LogicalOperator.class.getDeclaredFields();
-						for (Field field : fields) {
-							if (field.getName().equals(xor.name())) {
-						        setStaticFinalField(field, xor);
-							}
-						}						
-					}
-				}
-				
 				Field valuesField = LogicalOperator.class.getDeclaredField("ENUM$VALUES");
 				valuesField.setAccessible(true);
 				LogicalOperator[] newValues = Arrays.copyOf(values, values.length + 1);

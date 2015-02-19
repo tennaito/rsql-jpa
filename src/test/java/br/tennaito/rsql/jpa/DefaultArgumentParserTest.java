@@ -67,7 +67,9 @@ public class DefaultArgumentParserTest {
             actual = instance.parse(argument, Integer.class);
             fail();
         } catch (ArgumentFormatException e) {
-            assertEquals("Cannot cast '" + argument + "' to type " + Integer.class, e.getMessage());
+        	assertEquals("Cannot cast '" + argument + "' to type " + Integer.class, e.getMessage());
+        	assertEquals(argument, e.getArgument());
+        	assertEquals(Integer.class, e.getPropertyType());
         }
         
         argument = "true";
@@ -112,6 +114,8 @@ public class DefaultArgumentParserTest {
             fail();
         } catch (ArgumentFormatException e) {
         	assertEquals("Cannot cast '" + argument + "' to type " + Date.class, e.getMessage());
+        	assertEquals(argument, e.getArgument());
+        	assertEquals(Date.class, e.getPropertyType());
         }
         
         argument = "foo";
@@ -133,6 +137,8 @@ public class DefaultArgumentParserTest {
         	actual = instance.parse(argument, MockBrokenValueOfType.class);
         } catch(ArgumentFormatException e) {
         	assertEquals("Cannot cast '" + argument + "' to type " + MockBrokenValueOfType.class, e.getMessage());
+        	assertEquals(argument, e.getArgument());
+        	assertEquals(MockBrokenValueOfType.class, e.getPropertyType());
         }
         
         try {

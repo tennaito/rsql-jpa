@@ -45,7 +45,7 @@ public class SimpleMapper implements Mapper {
      * entities map.
      */
     public SimpleMapper() {
-        mapping = new HashMap<Class<?>, Map<String, String>>(0);
+    	this(0);
     }
     /**
      * Construct new <tt>SimpleMapper</tt> with the specified initial capacity

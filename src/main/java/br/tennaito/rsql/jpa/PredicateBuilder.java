@@ -41,8 +41,6 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
 import br.tennaito.rsql.builder.BuilderTools;
-import br.tennaito.rsql.misc.ArgumentParser;
-import br.tennaito.rsql.misc.DefaultArgumentParser;
 import br.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
@@ -79,6 +77,7 @@ public final class PredicateBuilder {
      * @param node      RSQL AST node.
      * @param entity    The main entity of the query.
      * @param manager   JPA EntityManager.
+     * @param misc      Facade with all necessary tools for predicate creation.
      * @return 			Predicate a predicate representation of the Node.
      */
     public static <T> Predicate createPredicate(Node node, Class<T> entity, EntityManager manager, BuilderTools misc) {
@@ -88,12 +87,9 @@ public final class PredicateBuilder {
         if (node instanceof LogicalNode) {
             return createPredicate((LogicalNode)node, entity, manager, misc);
         }
+        
         if (node instanceof ComparisonNode) {
             return createPredicate((ComparisonNode)node, entity, manager, misc);
-        }
-
-        if (misc.getPredicateBuilder() != null) {
-        	return misc.getPredicateBuilder().createPredicate(node, entity, manager, misc);
         }
 
         throw new IllegalArgumentException("Unknown expression type: " + node.getClass());
@@ -105,6 +101,7 @@ public final class PredicateBuilder {
      * @param logical        RSQL AST logical node.
      * @param entity  		 The main entity of the query.
      * @param manager 		 JPA EntityManager.
+     * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
     public static <T> Predicate createPredicate(LogicalNode logical, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
@@ -124,10 +121,6 @@ public final class PredicateBuilder {
             case OR : return builder.or(predicates.toArray(new Predicate[predicates.size()]));
         }
 
-        if (misc.getPredicateBuilder() != null) {
-        	return misc.getPredicateBuilder().createPredicate(logical, entity, entityManager, misc);
-        }
-
         throw new IllegalArgumentException("Unknown operator: " + logical.getOperator());
     }
 
@@ -137,6 +130,7 @@ public final class PredicateBuilder {
      * @param comparison	 RSQL AST comparison node.
      * @param entity  		 The main entity of the query.
      * @param manager 		 JPA EntityManager.
+     * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
     public static <T> Predicate createPredicate(ComparisonNode comparison, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
@@ -193,8 +187,6 @@ public final class PredicateBuilder {
     /**
      * Create Predicate for comparison operators.
      *
-     * TODO create
-     *
      * @param propertyPath  Property path that we want to compare.
      * @param operator      Comparison operator.
      * @param arguments     Arguments (1 for binary comparisons, n for multi-value comparisons [in, not in (out)])
@@ -206,44 +198,44 @@ public final class PredicateBuilder {
 
     	if (ComparisonOperatorProxy.asEnum(operator) != null) {
     		switch (ComparisonOperatorProxy.asEnum(operator)) {
-    		case EQUAL : {
-    			Object argument = arguments.get(0);
-    			if (argument instanceof String) {
-    				return createLike(propertyPath, (String) argument, manager);
-    			} else if (isNullArgument(argument)) {
-    				return createIsNull(propertyPath, manager);
-    			} else {
-    				return createEqual(propertyPath, argument, manager);
-    			}
-    		}
-    		case NOT_EQUAL : {
-    			Object argument = arguments.get(0);
-    			if (argument instanceof String) {
-    				return createNotLike(propertyPath, (String) argument, manager);
-    			} else if (isNullArgument(argument)) {
-    				return createIsNotNull(propertyPath, manager);
-    			} else {
-    				return createNotEqual(propertyPath, argument, manager);
-    			}
-    		}
-    		case GREATER_THAN : {
-    			Object argument = arguments.get(0);
-    			return createGreaterThan(propertyPath, (Number)argument, manager);
-    		}
-    		case GREATER_THAN_OR_EQUAL : {
-    			Object argument = arguments.get(0);
-    			return createGreaterEqual(propertyPath, (Number)argument, manager);
-    		}
-    		case LESS_THAN : {
-    			Object argument = arguments.get(0);
-    			return createLessThan(propertyPath, (Number)argument, manager);
-    		}
-    		case LESS_THAN_OR_EQUAL : {
-    			Object argument = arguments.get(0);
-    			return createLessEqual(propertyPath, (Number)argument, manager);
-    		}
-    		case IN : return createIn(propertyPath, arguments, manager);
-    		case NOT_IN : return createNotIn(propertyPath, arguments, manager);
+	    		case EQUAL : {
+	    			Object argument = arguments.get(0);
+	    			if (argument instanceof String) {
+	    				return createLike(propertyPath, (String) argument, manager);
+	    			} else if (isNullArgument(argument)) {
+	    				return createIsNull(propertyPath, manager);
+	    			} else {
+	    				return createEqual(propertyPath, argument, manager);
+	    			}
+	    		}
+	    		case NOT_EQUAL : {
+	    			Object argument = arguments.get(0);
+	    			if (argument instanceof String) {
+	    				return createNotLike(propertyPath, (String) argument, manager);
+	    			} else if (isNullArgument(argument)) {
+	    				return createIsNotNull(propertyPath, manager);
+	    			} else {
+	    				return createNotEqual(propertyPath, argument, manager);
+	    			}
+	    		}
+	    		case GREATER_THAN : {
+	    			Object argument = arguments.get(0);
+	    			return createGreaterThan(propertyPath, (Number)argument, manager);
+	    		}
+	    		case GREATER_THAN_OR_EQUAL : {
+	    			Object argument = arguments.get(0);
+	    			return createGreaterEqual(propertyPath, (Number)argument, manager);
+	    		}
+	    		case LESS_THAN : {
+	    			Object argument = arguments.get(0);
+	    			return createLessThan(propertyPath, (Number)argument, manager);
+	    		}
+	    		case LESS_THAN_OR_EQUAL : {
+	    			Object argument = arguments.get(0);
+	    			return createLessEqual(propertyPath, (Number)argument, manager);
+	    		}
+	    		case IN : return createIn(propertyPath, arguments, manager);
+	    		case NOT_IN : return createNotIn(propertyPath, arguments, manager);
     		}
     	}
         throw new IllegalArgumentException("Unknown operator: " + operator);
@@ -336,7 +328,7 @@ public final class PredicateBuilder {
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
-    public static Predicate createGreaterThan(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createGreaterThan(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.gt(propertyPath, argument);
     }
@@ -349,7 +341,7 @@ public final class PredicateBuilder {
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
-    public static Predicate createGreaterEqual(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createGreaterEqual(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.ge(propertyPath, argument);
     }
@@ -362,7 +354,7 @@ public final class PredicateBuilder {
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
-    public static Predicate createLessThan(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createLessThan(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.lt(propertyPath, argument);
     }
@@ -375,7 +367,7 @@ public final class PredicateBuilder {
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
-    public static Predicate createLessEqual(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createLessEqual(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.le(propertyPath, argument);
     }

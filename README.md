@@ -17,11 +17,11 @@ TODO
 
 ## Usage
 
-Example of basic usage with only provided builders, default _ArgumentParser_ and without selectors remapping:
+Example of basic usage with only provided builders, default _ArgumentParser_ and without selectors re-mapping:
 
 ```java
 
-// We will need an JPA EntityManager
+// We will need a JPA EntityManager
 EntityManager manager;
 
 // Create the JPA Visitor
@@ -30,7 +30,7 @@ RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQuery
 // Parse a RSQL into a Node
 Node rootNode = new RSQLParser().parse("id==1");
 
-// Visit the node to retrive CriteriaQuery
+// Visit the node to retrieve CriteriaQuery
 CriteriaQuery<Course> query = rootNode.accept(visitor, manager);
 
 // Do all sort of operations you want with the criteria query

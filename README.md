@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/tennaito/rsql-jpa.svg)](https://travis-ci.org/tennaito/rsql-jpa)
 [![Coverage Status](https://coveralls.io/repos/tennaito/rsql-jpa/badge.svg)](https://coveralls.io/r/tennaito/rsql-jpa)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/br.tennaito.rsql/rsql-jpa/badge.svg?style=flat)](http://mvnrepository.com/artifact/br.tennaito.rsql/rsql-jpa)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.tennaito/rsql-jpa/badge.svg?style=flat)](http://mvnrepository.com/artifact/com.github.tennaito/rsql-jpa)
 
 RESTful Service Query Language (RSQL) is a language and a library designed for searching entries in RESTful services.
 
@@ -87,7 +87,7 @@ Now some real examples of RSQL queries.
 
 ```xml
 <dependency>
-    <groupId>br.tennaito.rsql</groupId>
+    <groupId>com.github.tennaito</groupId>
     <artifactId>rsql-jpa</artifactId>
     <version>1.0.0</version>
 </dependency>

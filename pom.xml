@@ -33,7 +33,7 @@
         <url>https://github.com/tennaito/rsql-jpa/</url>
         <connection>scm:git:https://github.com/tennaito/rsql-jpa.git</connection>
         <developerConnection>scm:git:https://github.com/tennaito/rsql-jpa.git</developerConnection>
-    <tag>HEAD</tag>
+    	<tag>HEAD</tag>
   </scm>
 
     <!--//////////////////// PROPERTIES ////////////////////-->
@@ -107,7 +107,7 @@
 						<configuration>
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+							<autoReleaseAfterClose>false</autoReleaseAfterClose>
 						</configuration>
 					</plugin>
 					<plugin>

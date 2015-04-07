@@ -2,6 +2,7 @@
  * The MIT License
  *
  * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
+ * Copyright 2015 Antonio Rabelo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,12 +24,19 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 /**
  *
  * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author Antonio Rabelo
  */
 @Entity
 public class Person extends AbstractTestEntity {
@@ -36,6 +44,8 @@ public class Person extends AbstractTestEntity {
     @Column
     private String surname;
 
+    @ManyToMany(cascade=CascadeType.PERSIST)
+    private Set<Title> titles;
     
     public String getSurname() {
         return surname;
@@ -45,4 +55,11 @@ public class Person extends AbstractTestEntity {
         this.surname = surname;
     }
 
+	public Set<Title> getTitles() {
+		return titles;
+	}
+
+	public void setTitles(Set<Title> titles) {
+		this.titles = titles;
+	}
 }

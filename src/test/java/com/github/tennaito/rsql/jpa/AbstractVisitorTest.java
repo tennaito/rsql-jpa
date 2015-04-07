@@ -23,6 +23,9 @@
  */
 package com.github.tennaito.rsql.jpa;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.EntityManager;
 
 import org.junit.BeforeClass;
@@ -30,6 +33,7 @@ import org.junit.BeforeClass;
 import com.github.tennaito.rsql.jpa.entity.Course;
 import com.github.tennaito.rsql.jpa.entity.Department;
 import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.Title;
 
 /**
  * @author AntonioRabelo
@@ -44,10 +48,25 @@ public abstract class AbstractVisitorTest<T> {
     	EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
     	entityManager.getTransaction().begin();
 
+    	Title title1 = new Title();
+    	title1.setId(1L);
+    	title1.setName("Phd");
+    	entityManager.persist(title1);
+    	
+    	Title title2 = new Title();
+    	title2.setId(2L);
+    	title2.setName("Consultant");
+    	entityManager.persist(title2);
+    	
+    	Set<Title> titles = new HashSet<Title>();
+    	titles.add(title1);
+    	titles.add(title2);
+    	
     	Person head = new Person();
     	head.setId(1L);
     	head.setName("Some");
     	head.setSurname("One");
+    	head.setTitles(titles);
     	entityManager.persist(head);
 
     	Department department = new Department();

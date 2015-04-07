@@ -181,3 +181,7 @@ Now some real examples of RSQL queries.
 ## License
 
 This project is licensed under [MIT license](http://opensource.org/licenses/MIT).
+
+## Change log
+(Next release - 1.0.1) Added navigation through collection graphs.
+ 

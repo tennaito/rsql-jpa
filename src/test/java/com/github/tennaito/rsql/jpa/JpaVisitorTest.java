@@ -27,6 +27,7 @@ package com.github.tennaito.rsql.jpa;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 
 import java.lang.reflect.Constructor;
@@ -313,6 +314,16 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     }
     
     @Test
+    public void testNavigateThroughCollectionSelection() throws Exception {
+    	Node rootNode = new RSQLParser().parse("department.head.titles.name==Phd");
+    	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+    	List<Course> courses = entityManager.createQuery(query).getResultList();
+    	assertEquals("Testing Course", courses.get(0).getName());
+    }
+    
+    @Test
     public void testUnsupportedNode() throws Exception {
     	try{
     		PredicateBuilder.createPredicate(new OtherNode(), null, null, null);
@@ -351,8 +362,11 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     @Test
     public void testPrivateConstructor() throws Exception {
     	Constructor<PredicateBuilder> priv = PredicateBuilder.class.getDeclaredConstructor();
+    	// It is really private?
+    	assertFalse(priv.isAccessible());
     	priv.setAccessible(true);
     	Object predicateBuilder = priv.newInstance();
+    	// When used it returns a instance?
     	assertNotNull(predicateBuilder);
     }    
     

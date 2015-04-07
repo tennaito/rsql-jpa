@@ -37,8 +37,10 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
 
 import com.github.tennaito.rsql.builder.BuilderTools;
 import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
@@ -429,10 +431,17 @@ public final class PredicateBuilder {
      *
      * @param property       Property name for type extraction.
      * @param classMetadata  Reference class metamodel that holds property type.
-     * @return               Class java type for the property.
+     * @return               Class java type for the property, 
+     * 						 if the property is a pluralAttribute it will take the bindable java type of that collection.
      */
     private static <T> Class<?> findPropertyType(String property, ManagedType<T> classMetadata) {
-        return classMetadata.getAttribute(property).getJavaType();
+    	Class<?> propertyType = null;
+    	if (classMetadata.getAttribute(property).isCollection()) {
+    		propertyType = ((PluralAttribute)classMetadata.getAttribute(property)).getBindableJavaType();
+    	} else {
+    		propertyType = classMetadata.getAttribute(property).getJavaType();
+    	}
+        return propertyType;
     }
 
     /**

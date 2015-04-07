@@ -26,7 +26,6 @@ package com.github.tennaito.rsql.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
@@ -39,10 +38,10 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Course extends AbstractTestEntity {
 
-    @Column
+	@Column
     private boolean active;
 
-    @Id
+	@Column
     private String code;
 
     @Column

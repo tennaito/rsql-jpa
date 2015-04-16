@@ -16,10 +16,14 @@ The interaction with this API occurs from the  _JpaCriteriaQueryVisitor_ class. 
 
 From _getBuilderTools_ you can access or modify the _ArgumentParser_ (a class responsible for parsing the string arguments into respective classes), the _PropertiesMapper_ (a class responsible from re-mapping properties) and an optional _PredicateBuilder_ (needed when you have an new _ComparisonNode_ defined with the rsql-parser API).
 
+If you want more control you may use the new _JpaPredicateVisitor_ class.
+
 In the usage section we will cover all that usages. 
 
 
 ## Usage
+
+### _JpaCriteriaQueryVisitor_ class: 
 
 Example of basic usage with only provided predicate builders, default _ArgumentParser_ and without selectors re-mapping:
 
@@ -123,6 +127,30 @@ CriteriaQuery<Course> query = rootNode.accept(visitor, manager);
 
 // Execute and get results
 List<Course> courses = entityManager.createQuery(query).getResultList();
+```
+
+### _JpaPredicateVisitor_ class:
+
+Example of basic usage with only provided predicate builders, default _ArgumentParser_ and without selectors re-mapping:
+
+```java
+
+// We will need a JPA EntityManager
+EntityManager manager;
+
+// Create the JPA Predicate Visitor
+RSQLVisitor<Predicate, EntityManager> visitor = new JpaPredicateVisitor<Course>();
+
+// Parse a RSQL into a Node
+Node rootNode = new RSQLParser().parse("id==1");
+
+// Visit the node to retrieve CriteriaQuery
+Predicate predicate = rootNode.accept(visitor, manager);
+
+// Use generated predicate as you like
+CriteriaBuilder builder = manager.getCriteriaBuilder();
+CriteriaQuery criteria = builder.createQuery();
+criteria.where(predicate);
 ```
 
 ## RSQL syntax

@@ -40,51 +40,57 @@ import com.github.tennaito.rsql.jpa.entity.Title;
  */
 public abstract class AbstractVisitorTest<T> {
 
+	private static boolean loaded = false;
+
     protected Class<T> entityClass;
     protected EntityManager entityManager;
 
 	@BeforeClass
 	public static void setUpBefore() throws Exception {
-    	EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
-    	entityManager.getTransaction().begin();
-
-    	Title title1 = new Title();
-    	title1.setId(1L);
-    	title1.setName("Phd");
-    	entityManager.persist(title1);
-    	
-    	Title title2 = new Title();
-    	title2.setId(2L);
-    	title2.setName("Consultant");
-    	entityManager.persist(title2);
-    	
-    	Set<Title> titles = new HashSet<Title>();
-    	titles.add(title1);
-    	titles.add(title2);
-    	
-    	Person head = new Person();
-    	head.setId(1L);
-    	head.setName("Some");
-    	head.setSurname("One");
-    	head.setTitles(titles);
-    	entityManager.persist(head);
-
-    	Department department = new Department();
-    	department.setId(1L);
-    	department.setName("Testing");
-    	department.setCode("MI-MDW");
-    	department.setHead(head);
-    	entityManager.persist(department);
-
-    	Course c = new Course();
-    	c.setId(1L);
-    	c.setCode("MI-MDW");
-    	c.setActive(true);
-    	c.setCredits(10);
-    	c.setName("Testing Course");
-    	c.setDepartment(department);
-    	entityManager.persist(c);
-
-    	entityManager.getTransaction().commit();
+		if (!loaded) {
+			
+			EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
+			entityManager.getTransaction().begin();
+			
+			Title title1 = new Title();
+			title1.setId(1L);
+			title1.setName("Phd");
+			entityManager.persist(title1);
+			
+			Title title2 = new Title();
+			title2.setId(2L);
+			title2.setName("Consultant");
+			entityManager.persist(title2);
+			
+			Set<Title> titles = new HashSet<Title>();
+			titles.add(title1);
+			titles.add(title2);
+			
+			Person head = new Person();
+			head.setId(1L);
+			head.setName("Some");
+			head.setSurname("One");
+			head.setTitles(titles);
+			entityManager.persist(head);
+			
+			Department department = new Department();
+			department.setId(1L);
+			department.setName("Testing");
+			department.setCode("MI-MDW");
+			department.setHead(head);
+			entityManager.persist(department);
+			
+			Course c = new Course();
+			c.setId(1L);
+			c.setCode("MI-MDW");
+			c.setActive(true);
+			c.setCredits(10);
+			c.setName("Testing Course");
+			c.setDepartment(department);
+			entityManager.persist(c);
+			
+			entityManager.getTransaction().commit();
+			loaded = true;
+		}
 	}
 }

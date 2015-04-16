@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -35,67 +35,51 @@ import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
 /**
- * JpaCriteriaQueryVisitor
+ * JpaPredicateVisitor
  *
- * Visitor class for Criteria Query creation from RSQL AST Nodes.
+ * Visitor class for Predicate creation from RSQL AST Nodes.
  *
  * @author AntonioRabelo
  *
  * @param <T> Entity type
  */
-public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<T>, T>  implements RSQLVisitor<CriteriaQuery<T>, EntityManager> {
+public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  implements RSQLVisitor<Predicate, EntityManager> {
 
-	private static final Logger LOG = Logger.getLogger(JpaCriteriaQueryVisitor.class.getName());
+	/**
+	 * Logger.
+	 */
+	private static final Logger LOG = Logger.getLogger(JpaPredicateVisitor.class.getName());
 
-	private final JpaPredicateVisitor<T> predicateVisitor;
-	
 	/**
 	 * Construtor with template varargs for entityClass discovery.
 	 *
 	 * @param t not for usage
 	 */
-	public JpaCriteriaQueryVisitor(T... t) {
+	public JpaPredicateVisitor(T... t) {
 		super(t);
-		this.predicateVisitor = new JpaPredicateVisitor<T>(t);
-	}
-	
-	/**
-	 * Get the Predicate Visitor instance.
-	 * 
-	 * @return Return the Predicate Visitor.
-	 */
-	protected JpaPredicateVisitor<T> getPredicateVisitor() {
-		this.predicateVisitor.setBuilderTools(this.getBuilderTools());
-		return this.predicateVisitor;
 	}
 
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
-    	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-		return criteria.where(this.getPredicateVisitor().visit(node, entityManager));
+	public Predicate visit(AndNode node, EntityManager entityManager) {
+		LOG.log(Level.INFO, "Creating Predicate for AndNode: {0}", node);
+		return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools());
 	}
 
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
-    	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-		return criteria.where(this.getPredicateVisitor().visit(node, entityManager));
+	public Predicate visit(OrNode node, EntityManager entityManager) {
+		LOG.log(Level.INFO, "Creating Predicate for OrNode: {0}", node);
+		return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools());
 	}
 
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
-    	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-    	return criteria.where(this.getPredicateVisitor().visit(node, entityManager));
+	public Predicate visit(ComparisonNode node, EntityManager entityManager) {
+		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
+    	return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools());
 	}
 }

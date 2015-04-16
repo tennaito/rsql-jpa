@@ -183,5 +183,6 @@ Now some real examples of RSQL queries.
 This project is licensed under [MIT license](http://opensource.org/licenses/MIT).
 
 ## Change log
-(Next release - 1.0.1) Added navigation through collection graphs.
+(Next - 1.0.2) Adding a Predicate Visitor.
+(1.0.1) Added navigation through collection graphs.
  

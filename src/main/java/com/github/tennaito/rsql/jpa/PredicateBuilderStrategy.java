@@ -24,6 +24,7 @@
 package com.github.tennaito.rsql.jpa;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
 import com.github.tennaito.rsql.builder.BuilderTools;
@@ -50,5 +51,5 @@ public interface PredicateBuilderStrategy {
      * @return 			 Predicate a predicate representation of the Node.
      * @throws IllegalArgumentException When illegal arguments are found.
      */
-    public <T> Predicate createPredicate(Node node, Class<T> entity, EntityManager manager, BuilderTools tools) throws IllegalArgumentException;
+    public <T> Predicate createPredicate(Node node, Class<T> entity, EntityManager manager, BuilderTools tools, From root) throws IllegalArgumentException;
 }

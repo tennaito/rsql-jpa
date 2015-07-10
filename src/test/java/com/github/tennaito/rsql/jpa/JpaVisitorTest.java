@@ -42,6 +42,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
 import org.junit.Before;
@@ -246,11 +247,11 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		// define new operator resolver
     	PredicateBuilderStrategy predicateStrategy = new PredicateBuilderStrategy() {
 			public <T> Predicate createPredicate(Node node, Class<T> entity,
-					EntityManager manager, BuilderTools tools)
+					EntityManager manager, BuilderTools tools, From root)
 					throws IllegalArgumentException {
 				ComparisonNode comp = ((ComparisonNode)node);
 				ComparisonNode def = new ComparisonNode(ComparisonOperatorProxy.EQUAL.getOperator(), comp.getSelector(), comp.getArguments());
-				return PredicateBuilder.createPredicate(def, entity, manager, tools);
+				return PredicateBuilder.createPredicate(def, entity, manager, tools, root);
 			}
 		};
     	visitor.getBuilderTools().setPredicateBuilder(predicateStrategy);
@@ -326,7 +327,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     @Test
     public void testUnsupportedNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(new OtherNode(), null, null, null);
+    		PredicateBuilder.createPredicate(new OtherNode(), null, null, null, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown expression type: class com.github.tennaito.rsql.jpa.JpaVisitorTest$OtherNode", e.getMessage());
@@ -352,7 +353,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     @Test
     public void testUnsupportedLogicalNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, Course.class, entityManager, null);
+    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, Course.class, entityManager, null, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown operator: ^", e.getMessage());

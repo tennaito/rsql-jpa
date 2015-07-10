@@ -36,6 +36,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.ManagedType;
@@ -83,16 +84,16 @@ public final class PredicateBuilder {
      * @param misc      Facade with all necessary tools for predicate creation.
      * @return 			Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(Node node, Class<T> entity, EntityManager manager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(Node node, Class<T> entity, EntityManager manager, BuilderTools misc, From root) {
 
         LOG.log(Level.INFO, "Creating Predicate for: {0}", node);
 
         if (node instanceof LogicalNode) {
-            return createPredicate((LogicalNode)node, entity, manager, misc);
+            return createPredicate((LogicalNode)node, entity, manager, misc, root);
         }
         
         if (node instanceof ComparisonNode) {
-            return createPredicate((ComparisonNode)node, entity, manager, misc);
+            return createPredicate((ComparisonNode)node, entity, manager, misc, root);
         }
 
         throw new IllegalArgumentException("Unknown expression type: " + node.getClass());
@@ -107,7 +108,7 @@ public final class PredicateBuilder {
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(LogicalNode logical, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(LogicalNode logical, Class<T> entity, EntityManager entityManager, BuilderTools misc, From root) {
         LOG.log(Level.INFO, "Creating Predicate for logical node: {0}", logical);
 
     	CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -116,7 +117,7 @@ public final class PredicateBuilder {
 
     	LOG.log(Level.INFO, "Creating Predicates from all children nodes.");
     	for (Node node : logical.getChildren()) {
-    		predicates.add(createPredicate(node, entity, entityManager, misc));
+    		predicates.add(createPredicate(node, entity, entityManager, misc, root));
 		}
 
         switch (logical.getOperator()) {
@@ -136,15 +137,11 @@ public final class PredicateBuilder {
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(ComparisonNode comparison, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(ComparisonNode comparison, Class<T> entity, EntityManager entityManager, BuilderTools misc, From root) {
     	LOG.log(Level.INFO, "Creating Predicate for comparison node: {0}", comparison);
 
     	Metamodel metaModel = entityManager.getMetamodel();
     	ManagedType<?> classMetadata = metaModel.managedType(entity);
-
-    	CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entity);
-    	From root = criteria.from(entity);
 
     	Class argumentType = null;
     	Expression propertyPath = null;
@@ -174,11 +171,11 @@ public final class PredicateBuilder {
 
     	try {
     		// try to create a predicate
-    		return PredicateBuilder.createPredicate(propertyPath, comparison.getOperator(), castedArguments, entityManager);
+    		return PredicateBuilder.createPredicate(propertyPath, comparison.getOperator(), castedArguments, entityManager, root);
     	} catch (IllegalArgumentException e) {
     		// if operator dont exist try to delegate
             if (misc.getPredicateBuilder() != null) {
-            	return misc.getPredicateBuilder().createPredicate(comparison, entity, entityManager, misc);
+            	return misc.getPredicateBuilder().createPredicate(comparison, entity, entityManager, misc, root);
             }
             // if no strategy was defined then there are no more operators.
             throw e;
@@ -196,7 +193,7 @@ public final class PredicateBuilder {
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createPredicate(Expression propertyPath, ComparisonOperator operator, List<Object> arguments, EntityManager manager) {
+    private static Predicate createPredicate(Expression propertyPath, ComparisonOperator operator, List<Object> arguments, EntityManager manager, From root) {
     	LOG.log(Level.INFO, "Creating predicate: propertyPath {0} {1}", new Object[]{operator, arguments});
 
     	if (ComparisonOperatorProxy.asEnum(operator) != null) {
@@ -214,7 +211,7 @@ public final class PredicateBuilder {
 	    		case NOT_EQUAL : {
 	    			Object argument = arguments.get(0);
 	    			if (argument instanceof String) {
-	    				return createNotLike(propertyPath, (String) argument, manager);
+	    				return createNotLike(propertyPath, (String) argument, manager, root);
 	    			} else if (isNullArgument(argument)) {
 	    				return createIsNotNull(propertyPath, manager);
 	    			} else {
@@ -306,7 +303,7 @@ public final class PredicateBuilder {
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createNotLike(Expression<String> propertyPath, String argument, EntityManager manager) {
+    private static Predicate createNotLike(Expression<String> propertyPath, String argument, EntityManager manager, From root) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.not(createLike(propertyPath, argument, manager));
     }

@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
@@ -50,6 +51,8 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	private static final Logger LOG = Logger.getLogger(JpaPredicateVisitor.class.getName());
 
+	private From root;
+	
 	/**
 	 * Construtor with template varargs for entityClass discovery.
 	 *
@@ -64,7 +67,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public Predicate visit(AndNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for AndNode: {0}", node);
-		return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools());
+		return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools(), this.root);
 	}
 
 	/* (non-Javadoc)
@@ -72,7 +75,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public Predicate visit(OrNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for OrNode: {0}", node);
-		return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools());
+		return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools(), this.root);
 	}
 
 	/* (non-Javadoc)
@@ -80,6 +83,10 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public Predicate visit(ComparisonNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
-    	return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools());
+    	return PredicateBuilder.<T>createPredicate(node, entityClass, entityManager, getBuilderTools(), this.root);
+	}
+	
+	public void setRoot(From root) {
+	  this.root = root;
 	}
 }

@@ -68,12 +68,12 @@ public class DefaultArgumentParser implements ArgumentParser {
         // common types
         try {
             if (type.equals(String.class)) return (T) argument;
-            if (type.equals(Integer.class)) return (T) Integer.valueOf(argument);
-            if (type.equals(Boolean.class)) return (T) Boolean.valueOf(argument);
+            if (type.equals(Integer.class) || type.toString().equals("int")) return (T) Integer.valueOf(argument);
+            if (type.equals(Boolean.class) || type.toString().equals("boolean")) return (T) Boolean.valueOf(argument);
             if (type.isEnum()) return (T) Enum.valueOf((Class<Enum>)type, argument);
-            if (type.equals(Float.class)) return (T) Float.valueOf(argument);
-            if (type.equals(Double.class)) return (T) Double.valueOf(argument);
-            if (type.equals(Long.class)) return (T) Long.valueOf(argument);
+            if (type.equals(Float.class) || type.toString().equals("float")) return (T) Float.valueOf(argument);
+            if (type.equals(Double.class) || type.toString().equals("double")) return (T) Double.valueOf(argument);
+            if (type.equals(Long.class) || type.toString().equals("long")) return (T) Long.valueOf(argument);
         } catch (IllegalArgumentException ex) {
             throw new ArgumentFormatException(argument, type);
         }

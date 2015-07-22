@@ -60,6 +60,14 @@
 		</dependency>
 
         <!-- Test scope -->
+        <!-- 
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>4.3.10.Final</version>
+			<scope>test</scope>
+		</dependency>
+ 		-->		
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>eclipselink</artifactId>

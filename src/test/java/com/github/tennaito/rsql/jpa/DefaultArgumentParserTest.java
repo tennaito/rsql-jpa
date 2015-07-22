@@ -61,6 +61,11 @@ public class DefaultArgumentParserTest {
         actual = instance.parse(argument, Integer.class);
         assertEquals(expected, actual);
         
+        argument = "654321";
+        expected = 654321;
+        actual = instance.parse(argument, int.class);
+        assertEquals(expected, actual);
+        
         try {
             argument = "abc";
             expected = 123456;
@@ -77,6 +82,11 @@ public class DefaultArgumentParserTest {
         actual = instance.parse(argument, Boolean.class);
         assertEquals(expected, actual);
         
+        argument = "false";
+        expected = false;
+        actual = instance.parse(argument, boolean.class);
+        assertEquals(expected, actual);
+        
         argument = "FOO";
         expected = MockEnum.FOO;
         actual = instance.parse(argument, MockEnum.class);
@@ -87,14 +97,29 @@ public class DefaultArgumentParserTest {
         actual = instance.parse(argument, Float.class);
         assertEquals(expected, actual);
         
+        argument = "22.24";
+        expected = 22.24f;
+        actual = instance.parse(argument, float.class);
+        assertEquals(expected, actual);
+        
         argument = "42.22";
-        expected = 42.22;
+        expected = new Double(42.22);
         actual = instance.parse(argument, Double.class);
         assertEquals(expected, actual);
         
+        argument = "33.33";
+        expected = 33.33d;
+        actual = instance.parse(argument, double.class);
+        assertEquals(expected, actual);
+        
         argument = "123456789123456789";
-        expected = 123456789123456789L;
+        expected = new Long(123456789123456789L);
         actual = instance.parse(argument, Long.class);
+        assertEquals(expected, actual);
+        
+        argument = "987654321987654321";
+        expected = 987654321987654321L;
+        actual = instance.parse(argument, long.class);
         assertEquals(expected, actual);
         
         argument = "2011-08-26";

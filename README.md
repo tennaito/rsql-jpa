@@ -138,8 +138,13 @@ Example of basic usage with only provided predicate builders, default _ArgumentP
 // We will need a JPA EntityManager
 EntityManager manager;
 
+// Create criteria and from 
+CriteriaBuilder builder = manager.getCriteriaBuilder();
+CriteriaQuery criteria = builder.createQuery(Course.class);
+From root = criteria.from(Course.class);
+
 // Create the JPA Predicate Visitor
-RSQLVisitor<Predicate, EntityManager> visitor = new JpaPredicateVisitor<Course>();
+RSQLVisitor<Predicate, EntityManager> visitor = new JpaPredicateVisitor<Course>().defineRoot(root);
 
 // Parse a RSQL into a Node
 Node rootNode = new RSQLParser().parse("id==1");
@@ -148,8 +153,6 @@ Node rootNode = new RSQLParser().parse("id==1");
 Predicate predicate = rootNode.accept(visitor, manager);
 
 // Use generated predicate as you like
-CriteriaBuilder builder = manager.getCriteriaBuilder();
-CriteriaQuery criteria = builder.createQuery();
 criteria.where(predicate);
 ```
 
@@ -212,5 +215,7 @@ This project is licensed under [MIT license](http://opensource.org/licenses/MIT)
 
 ## Change log
 
+- (2.0.0) Correcting the design of the JPA Queries creation. That allows Hibernate provider to work correctly.
+          When using Hibernate only use 4.3.10.Final or newer.
 - (1.0.2) Adding a Predicate Visitor.
 - (1.0.1) Added navigation through collection graphs.

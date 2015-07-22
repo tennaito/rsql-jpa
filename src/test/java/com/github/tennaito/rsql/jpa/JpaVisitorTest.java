@@ -25,9 +25,9 @@ package com.github.tennaito.rsql.jpa;
 
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 
 import java.lang.reflect.Constructor;
@@ -42,6 +42,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
 import org.junit.Before;
@@ -97,6 +98,18 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
+    
+    @Test
+    public void testSimpleSelectionWhenPassingArgumentInTemplate() throws Exception {
+    	Node rootNode = new RSQLParser().parse("id==1");
+    	// not a recommended usage
+    	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>(new Course());
+    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+    	List<Course> courses = entityManager.createQuery(query).getResultList();
+    	assertEquals("Testing Course", courses.get(0).getName());
+    }
+    
 
     @Test
     public void testNotEqualSelection() throws Exception {
@@ -245,12 +258,12 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	private void createDefOperator(JpaCriteriaQueryVisitor<Course> visitor) {
 		// define new operator resolver
     	PredicateBuilderStrategy predicateStrategy = new PredicateBuilderStrategy() {
-			public <T> Predicate createPredicate(Node node, Class<T> entity,
+			public <T> Predicate createPredicate(Node node, From root, Class<T> entity,
 					EntityManager manager, BuilderTools tools)
 					throws IllegalArgumentException {
 				ComparisonNode comp = ((ComparisonNode)node);
 				ComparisonNode def = new ComparisonNode(ComparisonOperatorProxy.EQUAL.getOperator(), comp.getSelector(), comp.getArguments());
-				return PredicateBuilder.createPredicate(def, entity, manager, tools);
+				return PredicateBuilder.createPredicate(def, root, entity, manager, tools);
 			}
 		};
     	visitor.getBuilderTools().setPredicateBuilder(predicateStrategy);
@@ -326,7 +339,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     @Test
     public void testUnsupportedNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(new OtherNode(), null, null, null);
+    		PredicateBuilder.createPredicate(new OtherNode(), null, null, null, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown expression type: class com.github.tennaito.rsql.jpa.JpaVisitorTest$OtherNode", e.getMessage());
@@ -352,7 +365,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     @Test
     public void testUnsupportedLogicalNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, Course.class, entityManager, null);
+    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, null, Course.class, entityManager, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown operator: ^", e.getMessage());
@@ -436,5 +449,16 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		public <R, A> R accept(RSQLVisitor<R, A> visitor, A param) {
 			throw new UnsupportedOperationException();
 		}
-    }    
+    }  
+    
+    @Test
+    public void testUndefinedRootForPredicate() throws Exception {
+    	try {
+        	Node rootNode = new RSQLParser().parse("id==1");
+        	RSQLVisitor<Predicate, EntityManager> visitor = new JpaPredicateVisitor<Course>();
+        	Predicate query = rootNode.accept(visitor, entityManager);
+    	} catch (IllegalArgumentException e) {
+    		assertEquals("From root node was undefined.", e.getMessage());
+    	}
+    }
 }

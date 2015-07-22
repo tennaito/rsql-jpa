@@ -23,6 +23,8 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -32,9 +34,14 @@ import javax.persistence.MappedSuperclass;
  * @author Jakub Jirutka <jakub@jirutka.cz>
  */
 @MappedSuperclass
-public abstract class AbstractTestEntity {
+public abstract class AbstractTestEntity implements Serializable {
     
-    @Id
+    /**
+	 * SERIAL UID.
+	 */
+	private static final long serialVersionUID = -6000225405106550832L;
+
+	@Id
     private Long id;
     
     @Column

@@ -54,8 +54,6 @@ public class Course extends AbstractTestEntity {
     })
     private Department department;
 
-
-
     public boolean isActive() {
         return active;
     }

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -76,7 +77,8 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 		LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-		return criteria.where(this.getPredicateVisitor().visit(node, entityManager));
+    	From root = criteria.from(entityClass);
+		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +88,8 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 		LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-		return criteria.where(this.getPredicateVisitor().visit(node, entityManager));
+    	From root = criteria.from(entityClass);
+		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
 	}
 
 	/* (non-Javadoc)
@@ -96,6 +99,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 		LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
     	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-    	return criteria.where(this.getPredicateVisitor().visit(node, entityManager));
+    	From root = criteria.from(entityClass);
+    	return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
 	}
 }

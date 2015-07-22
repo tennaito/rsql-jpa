@@ -37,7 +37,6 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
@@ -78,21 +77,21 @@ public final class PredicateBuilder {
      * Create a Predicate from the RSQL AST node.
      *
      * @param node      RSQL AST node.
+     * @param root      From that predicate expression paths depends on.
      * @param entity    The main entity of the query.
      * @param manager   JPA EntityManager.
      * @param misc      Facade with all necessary tools for predicate creation.
      * @return 			Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(Node node, Class<T> entity, EntityManager manager, BuilderTools misc) {
-
+    public static <T> Predicate createPredicate(Node node, From root, Class<T> entity, EntityManager manager, BuilderTools misc) {
         LOG.log(Level.INFO, "Creating Predicate for: {0}", node);
 
         if (node instanceof LogicalNode) {
-            return createPredicate((LogicalNode)node, entity, manager, misc);
+            return createPredicate((LogicalNode)node, root, entity, manager, misc);
         }
         
         if (node instanceof ComparisonNode) {
-            return createPredicate((ComparisonNode)node, entity, manager, misc);
+            return createPredicate((ComparisonNode)node, root, entity, manager, misc);
         }
 
         throw new IllegalArgumentException("Unknown expression type: " + node.getClass());
@@ -102,12 +101,13 @@ public final class PredicateBuilder {
      * Create a Predicate from the RSQL AST logical node.
      *
      * @param logical        RSQL AST logical node.
+     * @param root           From that predicate expression paths depends on. 
      * @param entity  		 The main entity of the query.
      * @param manager 		 JPA EntityManager.
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(LogicalNode logical, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(LogicalNode logical, From root, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
         LOG.log(Level.INFO, "Creating Predicate for logical node: {0}", logical);
 
     	CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -116,7 +116,7 @@ public final class PredicateBuilder {
 
     	LOG.log(Level.INFO, "Creating Predicates from all children nodes.");
     	for (Node node : logical.getChildren()) {
-    		predicates.add(createPredicate(node, entity, entityManager, misc));
+    		predicates.add(createPredicate(node, root, entity, entityManager, misc));
 		}
 
         switch (logical.getOperator()) {
@@ -131,20 +131,24 @@ public final class PredicateBuilder {
      * Create a Predicate from the RSQL AST comparison node.
      *
      * @param comparison	 RSQL AST comparison node.
+     * @param root           From that predicate expression paths depends on. 
      * @param entity  		 The main entity of the query.
      * @param manager 		 JPA EntityManager.
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(ComparisonNode comparison, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(ComparisonNode comparison, From startRoot, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    	if (startRoot == null) {
+    		String msg = "From root node was undefined.";
+    		LOG.log(Level.SEVERE, msg);
+    		throw new IllegalArgumentException(msg);
+    	}
     	LOG.log(Level.INFO, "Creating Predicate for comparison node: {0}", comparison);
 
     	Metamodel metaModel = entityManager.getMetamodel();
     	ManagedType<?> classMetadata = metaModel.managedType(entity);
 
-    	CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entity);
-    	From root = criteria.from(entity);
+    	From root = startRoot;
 
     	Class argumentType = null;
     	Expression propertyPath = null;
@@ -178,7 +182,7 @@ public final class PredicateBuilder {
     	} catch (IllegalArgumentException e) {
     		// if operator dont exist try to delegate
             if (misc.getPredicateBuilder() != null) {
-            	return misc.getPredicateBuilder().createPredicate(comparison, entity, entityManager, misc);
+            	return misc.getPredicateBuilder().createPredicate(comparison, startRoot, entity, entityManager, misc);
             }
             // if no strategy was defined then there are no more operators.
             throw e;

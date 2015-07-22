@@ -205,7 +205,7 @@ Now some real examples of RSQL queries.
 <dependency>
     <groupId>com.github.tennaito</groupId>
     <artifactId>rsql-jpa</artifactId>
-    <version>1.0.2</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 

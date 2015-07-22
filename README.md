@@ -215,7 +215,8 @@ This project is licensed under [MIT license](http://opensource.org/licenses/MIT)
 
 ## Change log
 
-- (2.0.0) Correcting the design of the JPA Queries creation. That allows Hibernate provider to work correctly.
+- (2.0.0) Correcting the design of the JPA Queries creation. 
+		  That allows Hibernate provider to work correctly.
           When using Hibernate only use 4.3.10.Final or newer.
 - (1.0.2) Adding a Predicate Visitor.
 - (1.0.1) Added navigation through collection graphs.

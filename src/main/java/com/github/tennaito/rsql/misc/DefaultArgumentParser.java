@@ -117,10 +117,4 @@ public class DefaultArgumentParser implements ArgumentParser {
     	}
 		return castedArguments;
 	}
-	
-	public static void main(String[] args) {
-		int e = 1;
-		Class int_ = int.class;
-		System.out.println(int_.equals(int.class));
-	}
 }

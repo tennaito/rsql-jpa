@@ -75,8 +75,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 */
 	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
-    	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
+		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
 		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
 	}
@@ -86,8 +85,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 */
 	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
-    	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
+		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
 		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
 	}
@@ -97,8 +95,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 */
 	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
-    	javax.persistence.criteria.CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    	CriteriaQuery<T> criteria = builder.createQuery(entityClass);
+    	CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
     	return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
 	}

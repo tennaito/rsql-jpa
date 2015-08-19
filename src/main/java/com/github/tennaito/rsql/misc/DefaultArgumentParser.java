@@ -58,7 +58,7 @@ public class DefaultArgumentParser implements ArgumentParser {
     public <T> T parse(String argument, Class<T> type)
             throws ArgumentFormatException, IllegalArgumentException {
 
-    	LOG.log(Level.INFO, "Parsing argument '{0}' as type {1}", new Object[] {argument, type.getSimpleName()});
+    	LOG.log(Level.INFO, "Parsing argument ''{0}'' as type {1}", new Object[] {argument, type.getSimpleName()});
 
         // Nullable object
         if (argument == null || "null".equals(argument.trim().toLowerCase())) {

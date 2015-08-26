@@ -24,15 +24,15 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.github.tennaito.rsql.builder.BuilderTools;
+import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.Node;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
@@ -40,14 +40,11 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
-
-import com.github.tennaito.rsql.builder.BuilderTools;
-import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
-
-import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.LogicalNode;
-import cz.jirutka.rsql.parser.ast.Node;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * PredicateBuilder
@@ -103,7 +100,7 @@ public final class PredicateBuilder {
      * @param logical        RSQL AST logical node.
      * @param root           From that predicate expression paths depends on. 
      * @param entity  		 The main entity of the query.
-     * @param manager 		 JPA EntityManager.
+     * @param entityManager  JPA EntityManager.
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
@@ -131,9 +128,9 @@ public final class PredicateBuilder {
      * Create a Predicate from the RSQL AST comparison node.
      *
      * @param comparison	 RSQL AST comparison node.
-     * @param root           From that predicate expression paths depends on. 
+     * @param startRoot      From that predicate expression paths depends on.
      * @param entity  		 The main entity of the query.
-     * @param manager 		 JPA EntityManager.
+     * @param entityManager  JPA EntityManager.
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
@@ -383,7 +380,7 @@ public final class PredicateBuilder {
      * Apply a "in" constraint to the property path.
      *
      * @param propertyPath  Property path that we want to compare.
-     * @param argument      List of arguments.
+     * @param arguments     List of arguments.
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */
@@ -395,7 +392,7 @@ public final class PredicateBuilder {
      * Apply a "not in" (out) constraint to the property path.
      *
      * @param propertyPath  Property path that we want to compare.
-     * @param argument      List of arguments.
+     * @param arguments     List of arguments.
      * @param manager       JPA EntityManager.
      * @return              Predicate a predicate representation.
      */

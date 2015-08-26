@@ -205,7 +205,7 @@ Now some real examples of RSQL queries.
 <dependency>
     <groupId>com.github.tennaito</groupId>
     <artifactId>rsql-jpa</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -215,6 +215,9 @@ This project is licensed under [MIT license](http://opensource.org/licenses/MIT)
 
 ## Change log
 
+- (2.0.1) Added Embeddable property Path;
+		  Resolved thread safed of Data formatting;
+		  Minor updates;
 - (2.0.0) Correcting the design of the JPA Queries creation. 
 		  That allows Hibernate provider to work correctly.
           When using Hibernate only use 4.3.10.Final or newer.

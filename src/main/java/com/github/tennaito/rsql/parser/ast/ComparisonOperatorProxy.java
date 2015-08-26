@@ -23,6 +23,10 @@
  */
 package com.github.tennaito.rsql.parser.ast;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
 
@@ -45,6 +49,15 @@ public enum ComparisonOperatorProxy {
 	NOT_IN(RSQLOperators.NOT_IN);
 
 	private ComparisonOperator operator;
+	
+	private final static Map<ComparisonOperator, ComparisonOperatorProxy> CACHE = 
+			Collections.synchronizedMap(new HashMap<ComparisonOperator, ComparisonOperatorProxy>());
+	
+	static {
+		for (ComparisonOperatorProxy proxy : values()) {
+			CACHE.put(proxy.getOperator(), proxy);
+		}
+	}
 
     private ComparisonOperatorProxy(ComparisonOperator operator) {
     	this.operator = operator;
@@ -55,11 +68,6 @@ public enum ComparisonOperatorProxy {
     }
 
     public static ComparisonOperatorProxy asEnum(ComparisonOperator operator) {
-    	for (ComparisonOperatorProxy proxy : values()) {
-			if(proxy.getOperator().equals(operator)) {
-				return proxy;
-			}
-		}
-    	return null;
+    	return CACHE.get(operator);
     }
 }

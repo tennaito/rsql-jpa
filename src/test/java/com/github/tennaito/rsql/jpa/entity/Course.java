@@ -25,6 +25,7 @@
 package com.github.tennaito.rsql.jpa.entity;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
@@ -53,6 +54,9 @@ public class Course extends AbstractTestEntity {
     	@JoinColumn(name="code", referencedColumnName="code", insertable=false, updatable=false)
     })
     private Department department;
+
+    @Embedded
+    private CourseDetails details;
 
     public boolean isActive() {
         return active;
@@ -85,5 +89,13 @@ public class Course extends AbstractTestEntity {
     public void setDepartment(Department department) {
         this.department = department;
     }
+
+    public CourseDetails getDetails() {
+		return details;
+	}
+
+    public void setDetails(CourseDetails details) {
+		this.details = details;
+	}
 
 }

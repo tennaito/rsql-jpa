@@ -31,6 +31,7 @@ import javax.persistence.EntityManager;
 import org.junit.BeforeClass;
 
 import com.github.tennaito.rsql.jpa.entity.Course;
+import com.github.tennaito.rsql.jpa.entity.CourseDetails;
 import com.github.tennaito.rsql.jpa.entity.Department;
 import com.github.tennaito.rsql.jpa.entity.Person;
 import com.github.tennaito.rsql.jpa.entity.Title;
@@ -87,6 +88,7 @@ public abstract class AbstractVisitorTest<T> {
 			c.setCredits(10);
 			c.setName("Testing Course");
 			c.setDepartment(department);
+			c.setDetails(CourseDetails.of("test"));
 			entityManager.persist(c);
 			
 			entityManager.getTransaction().commit();

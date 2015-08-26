@@ -461,4 +461,15 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     		assertEquals("From root node was undefined.", e.getMessage());
     	}
     }
+
+	@Test
+	public void testSelectionUsingEmbeddedField() throws Exception {
+		Node rootNode = new RSQLParser().parse("details.description==test");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+	}
+
 }

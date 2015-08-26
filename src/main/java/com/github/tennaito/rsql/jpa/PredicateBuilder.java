@@ -35,8 +35,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
@@ -145,36 +147,11 @@ public final class PredicateBuilder {
     	}
     	LOG.log(Level.INFO, "Creating Predicate for comparison node: {0}", comparison);
 
-    	Metamodel metaModel = entityManager.getMetamodel();
-    	ManagedType<?> classMetadata = metaModel.managedType(entity);
-
-    	From root = startRoot;
-
-    	Class argumentType = null;
-    	Expression propertyPath = null;
-    	String[] graph = comparison.getSelector().split("\\.");
         LOG.log(Level.INFO, "Property graph path : {0}", comparison.getSelector());
-    	for (String property : graph) {
-    		String mappedProperty = misc.getPropertiesMapper().translate(property, classMetadata.getJavaType());
-    		if (hasPropertyName(mappedProperty, classMetadata)) {
-    			argumentType = findPropertyType(mappedProperty, classMetadata);
-    			if (isAssociationType(mappedProperty, classMetadata)) {
-    				String previousClass = classMetadata.getJavaType().getName();
-    				classMetadata = metaModel.managedType(argumentType);
-    				LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[] {previousClass, classMetadata.getJavaType().getName()});
-    				root = root.join(mappedProperty);
-    			} else {
-    				LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[] {classMetadata.getJavaType().getName(), mappedProperty});
-    				propertyPath = root.get(mappedProperty).as(argumentType);
-    				break;
-    			}
-    		} else {
-    			throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
-    		}
-		}
+        Expression propertyPath = findPropertyPath(comparison.getSelector(), startRoot, entityManager, misc);
 
-		LOG.log(Level.INFO, "Cast all arguments to type {0}.", argumentType.getName());
-    	List<Object> castedArguments = misc.getArgumentParser().parse(comparison.getArguments(), argumentType);
+		LOG.log(Level.INFO, "Cast all arguments to type {0}.", propertyPath.getJavaType().getName());
+    	List<Object> castedArguments = misc.getArgumentParser().parse(comparison.getArguments(), propertyPath.getJavaType());
 
     	try {
     		// try to create a predicate
@@ -187,6 +164,50 @@ public final class PredicateBuilder {
             // if no strategy was defined then there are no more operators.
             throw e;
     	}
+    }
+
+    /**
+     * Find a property path in the graph from startRoot
+     *
+     * @param propertyPath   The property path to find.
+     * @param startRoot      From that property path depends on.
+     * @param entityManager  JPA EntityManager.
+     * @param misc           Facade with all necessary tools for predicate creation.
+     * @return               The Path for the property path
+     * @throws               IllegalArgumentException if attribute of the given property name does not exist
+     */
+    public static <T> Path<?> findPropertyPath(String propertyPath, From startRoot, EntityManager entityManager,  BuilderTools misc) {
+        String[] graph = propertyPath.split("\\.");
+
+        Metamodel metaModel = entityManager.getMetamodel();
+        ManagedType<?> classMetadata = metaModel.managedType(startRoot.getJavaType());
+
+        Path<?> root = startRoot;
+
+        for (String property : graph) {
+            String mappedProperty = misc.getPropertiesMapper().translate(property, classMetadata.getJavaType());
+            if (!hasPropertyName(mappedProperty, classMetadata)) {
+				throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
+			}
+
+			if (isAssociationType(mappedProperty, classMetadata)) {
+				Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
+				String previousClass = classMetadata.getJavaType().getName();
+				classMetadata = metaModel.managedType(associationType);
+				LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[] {previousClass, classMetadata.getJavaType().getName()});
+				root = ((From) root).join(mappedProperty);
+			} else {
+				LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[] {classMetadata.getJavaType().getName(), mappedProperty});
+				root = root.get(mappedProperty);
+
+				if (isEmbeddedType(mappedProperty, classMetadata)) {
+					Class<?> embeddedType = findPropertyType(mappedProperty, classMetadata);
+					classMetadata = metaModel.managedType(embeddedType);
+				}
+			}
+        }
+
+        return root;
     }
 
     ///////////////  TEMPLATE METHODS  ///////////////
@@ -413,6 +434,17 @@ public final class PredicateBuilder {
      */
     private static <T> boolean isAssociationType(String property, ManagedType<T> classMetadata){
     	return classMetadata.getAttribute(property).isAssociation();
+    }
+
+    /**
+     * Verify if a property is an Embedded type.
+     *
+     * @param property       Property to verify.
+     * @param classMetadata  Metamodel of the class we want to check.
+     * @return               <tt>true</tt> if the property is an embedded attribute, <tt>false</tt> otherwise.
+     */
+    private static <T> boolean isEmbeddedType(String property, ManagedType<T> classMetadata){
+        return classMetadata.getAttribute(property).getPersistentAttributeType() == PersistentAttributeType.EMBEDDED;
     }
 
     /**

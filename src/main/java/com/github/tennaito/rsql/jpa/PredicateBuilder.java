@@ -173,8 +173,7 @@ public final class PredicateBuilder {
      * @return               The Path for the property path
      * @throws               IllegalArgumentException if attribute of the given property name does not exist
      */
-    public static <T> Path<?> findPropertyPath(String propertyPath, From startRoot, EntityManager entityManager,
-            BuilderTools misc) {
+    public static <T> Path<?> findPropertyPath(String propertyPath, From startRoot, EntityManager entityManager,  BuilderTools misc) {
         Metamodel metaModel = entityManager.getMetamodel();
         ManagedType<?> classMetadata = metaModel.managedType(startRoot.getJavaType());
 
@@ -184,24 +183,20 @@ public final class PredicateBuilder {
         Path<?> root = startRoot;
 
         for (String property : graph) {
-            // String mappedProperty = misc.getPropertiesMapper().translate(property,
-            // classMetadata.getJavaType());
-
+            //String mappedProperty = misc.getPropertiesMapper().translate(property, classMetadata.getJavaType());
+            
             if (!hasPropertyName(property, classMetadata)) {
-                throw new IllegalArgumentException(
-                        "Unknown property: " + property + " from entity " + classMetadata.getJavaType().getName());
+                throw new IllegalArgumentException("Unknown property: " + property + " from entity " + classMetadata.getJavaType().getName());
             }
 
             if (isAssociationType(property, classMetadata)) {
                 Class<?> associationType = findPropertyType(property, classMetadata);
                 String previousClass = classMetadata.getJavaType().getName();
                 classMetadata = metaModel.managedType(associationType);
-                LOG.log(Level.INFO, "Create a join between {0} and {1}.",
-                        new Object[] {previousClass, classMetadata.getJavaType().getName()});
+                LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[] {previousClass, classMetadata.getJavaType().getName()});
                 root = ((From) root).join(property);
             } else {
-                LOG.log(Level.INFO, "Create property path for type {0} property {1}.",
-                        new Object[] {classMetadata.getJavaType().getName(), property});
+                LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[] {classMetadata.getJavaType().getName(), property});
                 root = root.get(property);
 
                 if (isEmbeddedType(property, classMetadata)) {

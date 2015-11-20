@@ -281,12 +281,12 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
     @Test
     public void testAssociationAliasSelection() throws Exception {
-    	Node rootNode = new RSQLParser().parse("dept.id==1");
+    	Node rootNode = new RSQLParser().parse("dept_id==1");
     	JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
     	// add to SimpleMapper
     	assertNotNull(((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).getMapping());
     	((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).addMapping(Course.class, new HashMap<String, String>());
-    	((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).addMapping(Course.class, "dept", "department");    	
+    	((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).addMapping(Course.class, "dept_id", "department.id");    	
 
     	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
     	List<Course> courses = entityManager.createQuery(query).getResultList();

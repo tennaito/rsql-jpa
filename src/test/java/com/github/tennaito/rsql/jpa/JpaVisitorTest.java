@@ -33,8 +33,11 @@ import static junit.framework.Assert.fail;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +71,8 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
 	final static XorNode xorNode = new XorNode(new ArrayList<Node>());
+	private static final DateFormat DATE_TIME_FORMATTER = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss");
 	
     @Before
     public void setUp() throws Exception {
@@ -142,6 +147,17 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     }
 
     @Test
+    public void testGreaterThanEqualDate() throws Exception {
+    	Date date = new Date(0L);
+    	Node rootNode = new RSQLParser().parse("date=ge='"+DATE_TIME_FORMATTER.format(date)+"'");
+    	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+    	List<Course> courses = entityManager.createQuery(query).getResultList();
+    	assertEquals("Testing Course", courses.get(0).getName());
+    }
+
+    @Test
     public void testLessThanSelection() throws Exception {
     	Node rootNode = new RSQLParser().parse("id=lt=1");
     	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
@@ -149,6 +165,17 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals(0, courses.size());
+    }
+    
+    @Test
+    public void testLessThanEqualDate() throws Exception {
+    	Date date = new Date(999999999999999999L);
+    	Node rootNode = new RSQLParser().parse("date=le='"+DATE_TIME_FORMATTER.format(date)+"'");
+    	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+    	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+    	List<Course> courses = entityManager.createQuery(query).getResultList();
+    	assertEquals("Testing Course", courses.get(0).getName());
     }
 
     @Test

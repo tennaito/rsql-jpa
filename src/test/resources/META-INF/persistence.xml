@@ -10,6 +10,7 @@
 		<class>com.github.tennaito.rsql.jpa.entity.Department</class>
 		<class>com.github.tennaito.rsql.jpa.entity.Person</class>
 		<class>com.github.tennaito.rsql.jpa.entity.Title</class>
+		<class>com.github.tennaito.rsql.jpa.entity.Teacher</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver"   		 value="org.hsqldb.jdbcDriver" />
 			<property name="javax.persistence.jdbc.url"       		 value="jdbc:hsqldb:mem:ProductDAOTest" />

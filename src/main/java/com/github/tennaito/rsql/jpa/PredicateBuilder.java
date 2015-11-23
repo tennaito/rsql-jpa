@@ -194,7 +194,11 @@ public final class PredicateBuilder {
                 String previousClass = classMetadata.getJavaType().getName();
                 classMetadata = metaModel.managedType(associationType);
                 LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[] {previousClass, classMetadata.getJavaType().getName()});
-                root = ((From) root).join(property);
+                if (root instanceof From) {
+                    root = ((From) root).join(property);
+                } else {
+                    root = root.get(property);
+                }
             } else {
                 LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[] {classMetadata.getJavaType().getName(), property});
                 root = root.get(property);

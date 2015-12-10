@@ -270,7 +270,7 @@ public final class PredicateBuilder {
                         int days = 1;
                         predicate = createBetweenThan(propertyPath, modifyDate(argument, days), END_DATE, manager);
                     } else {
-                        predicate = createGreaterEqual(propertyPath, (Number) argument, manager);
+                        predicate = createGreaterThan(propertyPath, (Number) argument, manager);
                     }
                     return predicate;
                 }
@@ -291,7 +291,7 @@ public final class PredicateBuilder {
                         int days = -1;
                         predicate = createBetweenThan(propertyPath, START_DATE, modifyDate(argument, days), manager);
                     } else {
-                        predicate = createLessEqual(propertyPath, (Number) argument, manager);
+                        predicate = createLessThan(propertyPath, (Number) argument, manager);
                     }
                     return predicate;
                 }

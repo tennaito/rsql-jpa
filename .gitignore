@@ -1,4 +1,4 @@
-.gradle
+.gradle/
 /target/
 /.settings
 /.classpath

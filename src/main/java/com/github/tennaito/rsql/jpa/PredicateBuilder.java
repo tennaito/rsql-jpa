@@ -19,6 +19,7 @@
 package com.github.tennaito.rsql.jpa;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +65,7 @@ public final class PredicateBuilder {
 
     private static final Date START_DATE = new Date(0L);
 
-    private static final Date END_DATE = new Date(99999999999999999L);
+    private static final Date END_DATE = new Date(99999999999999L);
 
     /**
      * Private constructor.
@@ -264,13 +265,20 @@ public final class PredicateBuilder {
                 }
                 case GREATER_THAN: {
                     Object argument = arguments.get(0);
-                    return createGreaterThan(propertyPath, (Number) argument, manager);
+                    Predicate predicate;
+                    if (argument instanceof Date) {
+                        int days = 1;
+                        predicate = createBetweenThan(propertyPath, modifyDate(argument, days), END_DATE, manager);
+                    } else {
+                        predicate = createGreaterThan(propertyPath, (Number) argument, manager);
+                    }
+                    return predicate;
                 }
                 case GREATER_THAN_OR_EQUAL: {
                     Object argument = arguments.get(0);
                     Predicate predicate;
                     if (argument instanceof Date) {
-                        predicate = createBetweenThan(propertyPath, (Date) argument, END_DATE, manager);
+                        predicate = createBetweenThan(propertyPath, (Date)argument, END_DATE, manager);
                     } else {
                         predicate = createGreaterEqual(propertyPath, (Number) argument, manager);
                     }
@@ -278,7 +286,14 @@ public final class PredicateBuilder {
                 }
                 case LESS_THAN: {
                     Object argument = arguments.get(0);
-                    return createLessThan(propertyPath, (Number) argument, manager);
+                    Predicate predicate;
+                    if (argument instanceof Date) {
+                        int days = -1;
+                        predicate = createBetweenThan(propertyPath, START_DATE, modifyDate(argument, days), manager);
+                    } else {
+                        predicate = createLessThan(propertyPath, (Number) argument, manager);
+                    }
+                    return predicate;
                 }
                 case LESS_THAN_OR_EQUAL: {
                     Object argument = arguments.get(0);
@@ -538,5 +553,20 @@ public final class PredicateBuilder {
      */
     private static boolean isNullArgument(Object argument) {
         return argument == null;
+    }
+    
+    /**
+     * Get date regarding the operation (less then or greater than)
+     * @param argument Date to be modified
+     * @param days Days to be added or removed form argument;
+     *@return Date modified date
+     */
+    private static Date modifyDate(Object argument, int days) {
+        Date date = (Date) argument;
+        Calendar c = Calendar.getInstance(); 
+        c.setTime(date); 
+        c.add(Calendar.DATE, days);
+        date = c.getTime();
+        return date;
     }
 }

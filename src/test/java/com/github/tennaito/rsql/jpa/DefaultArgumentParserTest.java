@@ -26,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -142,6 +143,11 @@ public class DefaultArgumentParserTest {
         	assertEquals(argument, e.getArgument());
         	assertEquals(Date.class, e.getPropertyType());
         }
+        
+        argument = "1235.2232";
+        expected = new BigDecimal("1235.2232");
+        actual = instance.parse(argument, BigDecimal.class);
+        assertEquals(expected, actual);
         
         argument = "foo";
         expected = new MockValueOfType();

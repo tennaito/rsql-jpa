@@ -23,6 +23,7 @@
  */
 package com.github.tennaito.rsql.jpa;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import com.github.tennaito.rsql.jpa.entity.Course;
 import com.github.tennaito.rsql.jpa.entity.CourseDetails;
 import com.github.tennaito.rsql.jpa.entity.Department;
 import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.Teacher;
 import com.github.tennaito.rsql.jpa.entity.Title;
 
 /**
@@ -81,6 +83,11 @@ public abstract class AbstractVisitorTest<T> {
 			department.setHead(head);
 			entityManager.persist(department);
 			
+			Teacher teacher = new Teacher();
+			teacher.setId(23L);
+			teacher.setSpecialtyDescription("Maths");
+			entityManager.persist(teacher);
+			
 			Course c = new Course();
 			c.setId(1L);
 			c.setCode("MI-MDW");
@@ -88,7 +95,9 @@ public abstract class AbstractVisitorTest<T> {
 			c.setCredits(10);
 			c.setName("Testing Course");
 			c.setDepartment(department);
+			c.setDate(Calendar.getInstance().getTime());
 			c.setDetails(CourseDetails.of("test"));
+			c.getDetails().setTeacher(teacher);
 			entityManager.persist(c);
 			
 			entityManager.getTransaction().commit();

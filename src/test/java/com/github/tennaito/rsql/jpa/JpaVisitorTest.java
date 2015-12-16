@@ -72,11 +72,17 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	final static XorNode xorNode = new XorNode(new ArrayList<Node>());
 	private static final DateFormat DATE_TIME_FORMATTER = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss");
-	
+	private static Calendar calendar;
     @Before
     public void setUp() throws Exception {
         entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
         entityClass = Course.class;
+        calendar = Calendar.getInstance();
+        calendar.clear(Calendar.HOUR_OF_DAY);
+        calendar.clear(Calendar.AM_PM);
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
     }
 
     @Test
@@ -147,7 +153,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
     @Test
     public void testGreaterThanEqualDate() throws Exception {
-    	Date date = Calendar.getInstance().getTime();
+        Date date = calendar.getTime();
     	Node rootNode = new RSQLParser().parse("date=ge='"+DATE_TIME_FORMATTER.format(date)+"'");
     	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
     	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
@@ -158,7 +164,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     
     @Test
     public void testGreaterThanDate() throws Exception {
-        Date date = Calendar.getInstance().getTime();
+        Date date = calendar.getTime();
         Node rootNode = new RSQLParser().parse("date=gt='"+DATE_TIME_FORMATTER.format(date)+"'");
         RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
         CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
@@ -179,7 +185,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     
     @Test
     public void testLessThanEqualDate() throws Exception {
-    	Date date = new Date(999999999999999999L);
+        Date date = calendar.getTime();
     	Node rootNode = new RSQLParser().parse("date=le='"+DATE_TIME_FORMATTER.format(date)+"'");
     	RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
     	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
@@ -190,13 +196,24 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
     @Test
     public void testLessThanDate() throws Exception {
-        Date date = Calendar.getInstance().getTime();
+        Date date = calendar.getTime();
         Node rootNode = new RSQLParser().parse("date=lt='"+DATE_TIME_FORMATTER.format(date)+"'");
         RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
         CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
         List<Course> courses = entityManager.createQuery(query).getResultList();
         assertEquals(0, courses.size());
+    }
+    
+    @Test
+    public void testEqualDate() throws Exception {
+        Date date = calendar.getTime();
+        Node rootNode = new RSQLParser().parse("date=='"+DATE_TIME_FORMATTER.format(date)+"'");
+        RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+        CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+        List<Course> courses = entityManager.createQuery(query).getResultList();
+        assertEquals("Testing Course", courses.get(0).getName());
     }
     
     @Test
@@ -208,7 +225,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
         List<Course> courses = entityManager.createQuery(query).getResultList();
         assertEquals("Testing Course", courses.get(0).getName());
     }
-
+    
     @Test
     public void testInSelection() throws Exception {
         Node rootNode = new RSQLParser().parse("id=in=(1,2,3,4)");

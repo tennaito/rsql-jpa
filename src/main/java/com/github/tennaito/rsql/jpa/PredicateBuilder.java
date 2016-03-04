@@ -45,6 +45,7 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -70,13 +71,18 @@ public final class PredicateBuilder {
 
 	private static final Date START_DATE = new Date(0L) ;
 
-	private static final Date END_DATE = new Date(99999999999999999L);
+	private static final Date END_DATE;
 
+	static {
+    	Calendar endCalendar = Calendar.getInstance();
+    	endCalendar.set(9000, 01, 01);
+    	END_DATE = endCalendar.getTime();   
+	}
     /**
      * Private constructor.
      */
     private PredicateBuilder(){
-    	super();
+    	super(); 	
     }
 
     /**

@@ -30,7 +30,7 @@ import java.util.List;
  * Interface for Argument Parser that is used for parsing given string argument
  * from RSQL query according to type of the target property.
  *
- * @author Jakub Jirutka <jakub@jirutka.cz>
+ * @author Jakub Jirutka jakub@jirutka.cz
  * @author AntonioRabelo
  */
 public interface ArgumentParser {

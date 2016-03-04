@@ -26,6 +26,7 @@ package com.github.tennaito.rsql.jpa;
 
 import com.github.tennaito.rsql.builder.BuilderTools;
 import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
+
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.LogicalNode;
@@ -42,7 +43,10 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -65,11 +69,20 @@ public final class PredicateBuilder {
 
     public static final Character LIKE_WILDCARD = '*';
 
+	private static final Date START_DATE = new Date(0L) ;
+
+	private static final Date END_DATE;
+
+	static {
+    	Calendar endCalendar = Calendar.getInstance();
+    	endCalendar.set(9000, 01, 01);
+    	END_DATE = endCalendar.getTime();   
+	}
     /**
      * Private constructor.
      */
     private PredicateBuilder(){
-    	super();
+    	super(); 	
     }
 
     /**
@@ -249,7 +262,13 @@ public final class PredicateBuilder {
 	    		}
 	    		case GREATER_THAN_OR_EQUAL : {
 	    			Object argument = arguments.get(0);
-	    			return createGreaterEqual(propertyPath, (Number)argument, manager);
+	    			Predicate predicate;
+	    			if (argument instanceof Date){
+	    				predicate = createBetweenThan(propertyPath, (Date)argument, END_DATE, manager);
+	    			}else{
+	    				predicate = createGreaterEqual(propertyPath, (Number)argument, manager);
+	    			}
+	    			return predicate;
 	    		}
 	    		case LESS_THAN : {
 	    			Object argument = arguments.get(0);
@@ -257,7 +276,14 @@ public final class PredicateBuilder {
 	    		}
 	    		case LESS_THAN_OR_EQUAL : {
 	    			Object argument = arguments.get(0);
-	    			return createLessEqual(propertyPath, (Number)argument, manager);
+
+	    			Predicate predicate;
+	    			if (argument instanceof Date){
+	    				predicate = createBetweenThan(propertyPath,START_DATE, (Date)argument, manager);
+	    			}else{
+	    				predicate = createLessEqual(propertyPath, (Number)argument, manager);
+	    			}
+	    			return predicate;
 	    		}
 	    		case IN : return createIn(propertyPath, arguments, manager);
 	    		case NOT_IN : return createNotIn(propertyPath, arguments, manager);
@@ -267,6 +293,20 @@ public final class PredicateBuilder {
     }
 
     /**
+     * Creates the between than.
+     *
+     * @param propertyPath the property path
+     * @param startDate the start date
+     * @param argument the argument
+     * @param manager the manager
+     * @return the predicate
+     */
+    private static Predicate createBetweenThan(Expression propertyPath, Date start, Date end, EntityManager manager) {
+    	CriteriaBuilder builder = manager.getCriteriaBuilder();
+    	return builder.between(propertyPath, start, end);
+	}
+
+	/**
      * Apply a case-insensitive "like" constraint to the property path. Value
      * should contains wildcards "*" (% in SQL) and "_".
      *

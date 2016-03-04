@@ -23,6 +23,7 @@
  */
 package com.github.tennaito.rsql.jpa;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -88,6 +89,7 @@ public abstract class AbstractVisitorTest<T> {
 			c.setCredits(10);
 			c.setName("Testing Course");
 			c.setDepartment(department);
+			c.setDate(Calendar.getInstance().getTime());
 			c.setDetails(CourseDetails.of("test"));
 			entityManager.persist(c);
 			

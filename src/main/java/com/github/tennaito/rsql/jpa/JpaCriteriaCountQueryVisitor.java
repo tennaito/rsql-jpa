@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -38,15 +39,15 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 /**
  * JpaCriteriaQueryVisitor
  *
- * Visitor class for Criteria Query creation from RSQL AST Nodes.
+ * Visitor class for Criteria Query count creation from RSQL AST Nodes.
  *
- * @author AntonioRabelo
+ * @author sza
  *
  * @param <T> Entity type
  */
-public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<T>, T>  implements RSQLVisitor<CriteriaQuery<T>, EntityManager> {
+public class JpaCriteriaCountQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<Long>, T>  implements RSQLVisitor<CriteriaQuery<Long>, EntityManager> {
 
-	private static final Logger LOG = Logger.getLogger(JpaCriteriaQueryVisitor.class.getName());
+	private static final Logger LOG = Logger.getLogger(JpaCriteriaCountQueryVisitor.class.getName());
 
 	private final JpaPredicateVisitor<T> predicateVisitor;
 
@@ -58,7 +59,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 * @param t not for usage
 	 */
 	@SafeVarargs
-	public JpaCriteriaQueryVisitor(T... t) {
+	public JpaCriteriaCountQueryVisitor(T... t) {
 		super(t);
 		this.predicateVisitor = new JpaPredicateVisitor<T>(t);
 	}
@@ -76,31 +77,45 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
+	public CriteriaQuery<Long> visit(AndNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
-		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
-    	root = criteria.from(entityClass);
-		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
+		
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+    	root = cq.from(entityClass);
+		cq.select(cb.countDistinct(root));
+		cq.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));		
+    	
+		return cq;
 	}
 
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
+	public CriteriaQuery<Long> visit(OrNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
-		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
-    	root = criteria.from(entityClass);
-		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
+
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+    	root = cq.from(entityClass);
+		cq.select(cb.countDistinct(root));
+    	root = cq.from(entityClass);
+		cq.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));	
+		return cq;
 	}
 
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
+	public CriteriaQuery<Long> visit(ComparisonNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
-    	CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
-    	root = criteria.from(entityClass);
-    	return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
+
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+    	root = cq.from(entityClass);
+		cq.select(cb.countDistinct(root));
+		cq.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));	
+		return cq;
 	}
 
 	public Root<T> getRoot() {

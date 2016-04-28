@@ -60,6 +60,10 @@ public abstract class AbstractJpaVisitor<T, E> implements RSQLVisitor<T, EntityM
 		}		
 	}
 
+	public void setEntityClass(Class<E> clazz) {
+		entityClass = clazz;
+	}
+
 	/**
 	 * Get builder tools.
 	 *

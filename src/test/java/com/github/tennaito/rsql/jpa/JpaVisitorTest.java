@@ -44,6 +44,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -373,7 +374,20 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
         assertEquals(0, courses.size());
     }
 
-    @Test
+	@Test
+	public void testBasicSelectionCount() throws Exception {
+		Node rootNode = new RSQLParser().parse("department.id==1");
+		RSQLVisitor<CriteriaQuery<Long>, EntityManager> visitor = new JpaCriteriaCountQueryVisitor<Course>();
+		CriteriaQuery<Long> query = rootNode.accept(visitor, entityManager);
+
+		Long courseCount = entityManager.createQuery(query).getSingleResult();
+		assertEquals((Long)1l, courseCount);
+		Root<Course> root = ((JpaCriteriaCountQueryVisitor<Course>)visitor).getRoot();
+		assertNotNull(root);
+		((JpaCriteriaCountQueryVisitor<Course>)visitor).setRoot(root);
+	}
+
+	@Test
     public void testAndSelectionCount() throws Exception {
         Node rootNode = new RSQLParser().parse("department.id==1;id==2");
         RSQLVisitor<CriteriaQuery<Long>, EntityManager> visitor = new JpaCriteriaCountQueryVisitor<Course>();

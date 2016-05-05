@@ -1,12 +1,16 @@
 package com.github.tennaito.rsql.jpa.entity;
 
 import javax.persistence.Embeddable;
+import javax.persistence.OneToOne;
 
 @Embeddable
 public class CourseDetails {
 
 	private String description;
-	
+
+	@OneToOne
+	private Teacher teacher;
+
 	public String getDescription() {
 		return description;
 	}
@@ -19,5 +23,13 @@ public class CourseDetails {
 		CourseDetails details = new CourseDetails();
 		details.setDescription(description);
 		return details;
+	}
+
+	public Teacher getTeacher() {
+		return teacher;
+	}
+
+	public void setTeacher(Teacher teacher) {
+		this.teacher = teacher;
 	}
 }

@@ -1,7 +1,21 @@
 package com.github.tennaito.rsql.jpa.entity;
 
-/**
- * Created by dbetterton on 5/5/16.
- */
-public class Teacher {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
+@Entity
+public class Teacher extends AbstractTestEntity {
+
+    @Column
+    private String specialtyDescription;
+
+    public String getSpecialtyDescription() {
+        return specialtyDescription;
+    }
+
+    public void setSpecialtyDescription(String specialtyDescription) {
+        this.specialtyDescription = specialtyDescription;
+    }
+
+
 }

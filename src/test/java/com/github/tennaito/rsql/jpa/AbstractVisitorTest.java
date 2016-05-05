@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 
+import com.github.tennaito.rsql.jpa.entity.Teacher;
 import org.junit.BeforeClass;
 
 import com.github.tennaito.rsql.jpa.entity.Course;
@@ -81,6 +82,11 @@ public abstract class AbstractVisitorTest<T> {
 			department.setCode("MI-MDW");
 			department.setHead(head);
 			entityManager.persist(department);
+
+			Teacher teacher = new Teacher();
+			teacher.setId(23L);
+			teacher.setSpecialtyDescription("Maths");
+			entityManager.persist(teacher);
 			
 			Course c = new Course();
 			c.setId(1L);
@@ -90,6 +96,7 @@ public abstract class AbstractVisitorTest<T> {
 			c.setName("Testing Course");
 			c.setDepartment(department);
 			c.setDetails(CourseDetails.of("test"));
+			c.getDetails().setTeacher(teacher);
 			c.setStartDate( new Date());
 			entityManager.persist(c);
 			

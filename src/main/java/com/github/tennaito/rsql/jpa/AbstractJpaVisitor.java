@@ -49,7 +49,7 @@ public abstract class AbstractJpaVisitor<T, E> implements RSQLVisitor<T, EntityM
 	/**
 	 * Construtor with template varargs for entityClass discovery.
 	 *
-	 * @param t not for usage
+	 * @param e not for usage
 	 */
 	public AbstractJpaVisitor(E... e) {
 		// getting class from template... :P
@@ -58,6 +58,15 @@ public abstract class AbstractJpaVisitor<T, E> implements RSQLVisitor<T, EntityM
 		} else {
 			entityClass = (Class<E>) e[0].getClass();
 		}		
+	}
+
+	/**
+	 * Set the entity class explicitly, needed when the entity type is itself a generic
+	 *
+	 * @param clazz Class to set.
+     */
+	public void setEntityClass(Class<E> clazz) {
+		entityClass = clazz;
 	}
 
 	/**

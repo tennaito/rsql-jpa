@@ -35,6 +35,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.Attribute;
@@ -43,6 +44,8 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -64,6 +67,9 @@ public final class PredicateBuilder {
 	private static final Logger LOG = Logger.getLogger(PredicateBuilder.class.getName());
 
     public static final Character LIKE_WILDCARD = '*';
+
+    private static final Date START_DATE = new Date(0L) ;
+    private static final Date END_DATE = new Date(99999999999999999L) ;
 
     /**
      * Private constructor.
@@ -173,7 +179,7 @@ public final class PredicateBuilder {
      * @return               The Path for the property path
      * @throws               IllegalArgumentException if attribute of the given property name does not exist
      */
-    public static <T> Path<?> findPropertyPath(String propertyPath, From startRoot, EntityManager entityManager,  BuilderTools misc) {
+    public static <T> Path<?> findPropertyPath(String propertyPath, Path startRoot, EntityManager entityManager,  BuilderTools misc) {
         String[] graph = propertyPath.split("\\.");
 
         Metamodel metaModel = entityManager.getMetamodel();
@@ -183,25 +189,34 @@ public final class PredicateBuilder {
 
         for (String property : graph) {
             String mappedProperty = misc.getPropertiesMapper().translate(property, classMetadata.getJavaType());
-            if (!hasPropertyName(mappedProperty, classMetadata)) {
-				throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
-			}
+            if( !mappedProperty.equals( property) ) {
+                root = findPropertyPath( mappedProperty, root, entityManager, misc );
+            } else {
+                if (!hasPropertyName(mappedProperty, classMetadata)) {
+                    throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
+                }
 
-			if (isAssociationType(mappedProperty, classMetadata)) {
-				Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
-				String previousClass = classMetadata.getJavaType().getName();
-				classMetadata = metaModel.managedType(associationType);
-				LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[] {previousClass, classMetadata.getJavaType().getName()});
-				root = ((From) root).join(mappedProperty);
-			} else {
-				LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[] {classMetadata.getJavaType().getName(), mappedProperty});
-				root = root.get(mappedProperty);
+                if (isAssociationType(mappedProperty, classMetadata)) {
+                    Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
+                    String previousClass = classMetadata.getJavaType().getName();
+                    classMetadata = metaModel.managedType(associationType);
+                    LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
 
-				if (isEmbeddedType(mappedProperty, classMetadata)) {
-					Class<?> embeddedType = findPropertyType(mappedProperty, classMetadata);
-					classMetadata = metaModel.managedType(embeddedType);
-				}
-			}
+                    if (root instanceof Join) {
+                        root = root.get(mappedProperty);
+                    } else {
+                        root = ((From) root).join(mappedProperty);
+                    }
+                } else {
+                    LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});
+                    root = root.get(mappedProperty);
+
+                    if (isEmbeddedType(mappedProperty, classMetadata)) {
+                        Class<?> embeddedType = findPropertyType(mappedProperty, classMetadata);
+                        classMetadata = metaModel.managedType(embeddedType);
+                    }
+                }
+            }
         }
 
         return root;
@@ -245,25 +260,67 @@ public final class PredicateBuilder {
 	    		}
 	    		case GREATER_THAN : {
 	    			Object argument = arguments.get(0);
-	    			return createGreaterThan(propertyPath, (Number)argument, manager);
-	    		}
+                    Predicate predicate;
+                    if (argument instanceof Date) {
+                        int days = 1;
+                        predicate = createBetweenThan(propertyPath, modifyDate(argument, days), END_DATE, manager);
+                    } else {
+                        predicate = createGreaterThan(propertyPath, (Number) argument, manager);
+                    }
+                    return predicate;
+                }
 	    		case GREATER_THAN_OR_EQUAL : {
 	    			Object argument = arguments.get(0);
-	    			return createGreaterEqual(propertyPath, (Number)argument, manager);
+                    Predicate predicate;
+                    if (argument instanceof Date){
+                        predicate = createBetweenThan(propertyPath, (Date)argument, END_DATE, manager);
+                    }else{
+                        predicate = createGreaterEqual(propertyPath, (Number)argument, manager);
+                    }
+                    return predicate;
+
 	    		}
 	    		case LESS_THAN : {
 	    			Object argument = arguments.get(0);
-	    			return createLessThan(propertyPath, (Number)argument, manager);
-	    		}
+                    Predicate predicate;
+                    if (argument instanceof Date) {
+                        int days = -1;
+                        predicate = createBetweenThan(propertyPath, START_DATE, modifyDate(argument, days), manager);
+                    } else {
+                        predicate = createLessThan(propertyPath, (Number) argument, manager);
+                    }
+                    return predicate;
+                }
 	    		case LESS_THAN_OR_EQUAL : {
 	    			Object argument = arguments.get(0);
-	    			return createLessEqual(propertyPath, (Number)argument, manager);
-	    		}
+
+                    Predicate predicate;
+                    if (argument instanceof Date){
+                        	predicate = createBetweenThan(propertyPath,START_DATE, (Date)argument, manager);
+                    }else{
+                        predicate = createLessEqual(propertyPath, (Number)argument, manager);
+                    }
+                    return predicate;
+                }
 	    		case IN : return createIn(propertyPath, arguments, manager);
 	    		case NOT_IN : return createNotIn(propertyPath, arguments, manager);
     		}
     	}
         throw new IllegalArgumentException("Unknown operator: " + operator);
+    }
+
+    /**
+     +     * Creates the between than.
+     +     *
+     +     * @param propertyPath the property path
+     +     * @param startDate the start date
+     +     * @param argument the argument
+     +     * @param manager the manager
+     +     * @return the predicate
+     +     */
+    private static Predicate createBetweenThan(Expression propertyPath, Date start, Date end, EntityManager manager) {
+       	CriteriaBuilder builder = manager.getCriteriaBuilder();
+       	return builder.between(propertyPath, start, end);
     }
 
     /**
@@ -485,5 +542,22 @@ public final class PredicateBuilder {
      */
     private static boolean isNullArgument(Object argument) {
         return argument == null;
+    }
+
+
+    /**
+      * Get date regarding the operation (less then or greater than)
+     *
+      * @param argument Date to be modified
+      * @param days Days to be added or removed form argument;
+      *@return Date modified date
+      */
+    private static Date modifyDate(Object argument, int days) {
+        Date date = (Date) argument;
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, days);
+        date = c.getTime();
+        return date;
     }
 }

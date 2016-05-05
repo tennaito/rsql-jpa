@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  */
 public class SimpleMapper implements Mapper {
 
-	private static final Logger LOG = Logger.getLogger(DefaultArgumentParser.class.getName());
+	private static final Logger LOG = Logger.getLogger(SimpleMapper.class.getName());
 
     private Map<Class<?>, Map<String, String>> mapping;
 

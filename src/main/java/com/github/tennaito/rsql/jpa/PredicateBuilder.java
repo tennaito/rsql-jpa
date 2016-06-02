@@ -73,11 +73,13 @@ public final class PredicateBuilder {
     private static final Date END_DATE;
 
     static {
+        //
+        //  Use a date range that Oracle can cope with
+        //
         Calendar cal = Calendar.getInstance();
         cal.set( 9999, Calendar.DECEMBER, 31);
         END_DATE = cal.getTime();
-        cal.set( 4712, Calendar.JANUARY, 1);
-        cal.set(Calendar.ERA, GregorianCalendar.BC);
+        cal.set( 5, Calendar.JANUARY, 1);           //      Use Jan 1, 5 AD, since that's where the Roman's sort of got it together with leap years.
         START_DATE = cal.getTime();
     }
 

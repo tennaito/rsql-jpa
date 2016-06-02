@@ -46,7 +46,6 @@ import javax.persistence.metamodel.PluralAttribute;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -74,7 +73,7 @@ public final class PredicateBuilder {
 
     static {
         //
-        //  Use a date range that Oracle can cope with
+        //  Use a date range that Oracle can cope with - apparently the years around 1 BC and 1 AD are messed up in Oracle - known bug
         //
         Calendar cal = Calendar.getInstance();
         cal.set( 9999, Calendar.DECEMBER, 31);

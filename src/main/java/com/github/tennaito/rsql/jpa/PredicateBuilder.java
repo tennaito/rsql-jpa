@@ -68,8 +68,19 @@ public final class PredicateBuilder {
 
     public static final Character LIKE_WILDCARD = '*';
 
-    private static final Date START_DATE = new Date(0L) ;
-    private static final Date END_DATE = new Date(99999999999999999L) ;
+    private static final Date START_DATE;
+    private static final Date END_DATE;
+
+    static {
+        //
+        //  Use a date range that Oracle can cope with - apparently the years around 1 BC and 1 AD are messed up in Oracle - known bug
+        //
+        Calendar cal = Calendar.getInstance();
+        cal.set( 9999, Calendar.DECEMBER, 31);
+        END_DATE = cal.getTime();
+        cal.set( 5, Calendar.JANUARY, 1);           //      Use Jan 1, 5 AD, since that's where the Roman's sort of got it together with leap years.
+        START_DATE = cal.getTime();
+    }
 
     /**
      * Private constructor.

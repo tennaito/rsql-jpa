@@ -216,7 +216,9 @@ public final class PredicateBuilder {
                     if (root instanceof Join) {
                         root = root.get(mappedProperty);
                     } else {
-                        root = ((From) root).join(mappedProperty);
+//                        root = ((From) root).join(mappedProperty);
+                        //http://stackoverflow.com/questions/4511368/jpa-2-criteria-fetch-path-navigation
+                        root = (Join)((From) root).fetch(mappedProperty);
                     }
                 } else {
                     LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});

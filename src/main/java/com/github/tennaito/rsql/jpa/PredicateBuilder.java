@@ -190,44 +190,54 @@ public final class PredicateBuilder {
      * @return               The Path for the property path
      * @throws               IllegalArgumentException if attribute of the given property name does not exist
      */
-    public static <T> Path<?> findPropertyPath(String propertyPath, Path startRoot, EntityManager entityManager,  BuilderTools misc) {
+    public static <T> Path<?> findPropertyPath(String propertyPath, From startRoot, EntityManager entityManager,  BuilderTools misc) {
         String[] graph = propertyPath.split("\\.");
 
         Metamodel metaModel = entityManager.getMetamodel();
         ManagedType<?> classMetadata = metaModel.managedType(startRoot.getJavaType());
 
         Path<?> root = startRoot;
-
+        int i = 0;
         for (String property : graph) {
+        	i+=1;
+        	String nextProperty = i < graph.length ? graph[i] : null; 
             String mappedProperty = misc.getPropertiesMapper().translate(property, classMetadata.getJavaType());
-            if( !mappedProperty.equals( property) ) {
-                root = findPropertyPath( mappedProperty, root, entityManager, misc );
-            } else {
-                if (!hasPropertyName(mappedProperty, classMetadata)) {
-                    throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
-                }
+            if (!hasPropertyName(mappedProperty, classMetadata)) {
+				throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
+			}
 
-                if (isAssociationType(mappedProperty, classMetadata)) {
-                    Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
-                    String previousClass = classMetadata.getJavaType().getName();
-                    classMetadata = metaModel.managedType(associationType);
-                    LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
+			if (isAssociationType(mappedProperty, classMetadata)) {
+				Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
+				String previousClass = classMetadata.getJavaType().getName();
+				classMetadata = metaModel.managedType(associationType);
+				if(nextProperty != null){
+					String mappedNextProperty = misc.getPropertiesMapper().translate(nextProperty, classMetadata.getJavaType());
+					if(!hasPropertyName(mappedNextProperty, classMetadata)){
+						//look for subtype that have the property
+						for (EntityType<?> entityType : metaModel.getEntities()) {
+							IdentifiableType<?> supertype = entityType.getSupertype();
+							if(classMetadata.equals(supertype)){
+								if(hasPropertyName(mappedNextProperty,entityType)){
+									classMetadata = entityType;
+									break;
+								}	
+							}
+						}
+					}
+				}
+				
+				
+				LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[] {previousClass, classMetadata.getJavaType().getName()});
+				root = entityManager.getCriteriaBuilder().treat(((From)root).join(mappedProperty),classMetadata.getJavaType());
+			} else {
+				LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[] {classMetadata.getJavaType().getName(), mappedProperty});
+				root = root.get(mappedProperty);
 
-                    if (root instanceof Join) {
-                        root = root.get(mappedProperty);
-                    } else {
-                        root = ((From) root).join(mappedProperty);
-                    }
-                } else {
-                    LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});
-                    root = root.get(mappedProperty);
-
-                    if (isEmbeddedType(mappedProperty, classMetadata)) {
-                        Class<?> embeddedType = findPropertyType(mappedProperty, classMetadata);
-                        classMetadata = metaModel.managedType(embeddedType);
-                    }
-                }
-            }
+				if (isEmbeddedType(mappedProperty, classMetadata)) {
+					Class<?> embeddedType = findPropertyType(mappedProperty, classMetadata);
+					classMetadata = metaModel.managedType(embeddedType);
+				}
+			}
         }
 
         return root;

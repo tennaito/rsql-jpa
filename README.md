@@ -215,6 +215,7 @@ This project is licensed under [MIT license](http://opensource.org/licenses/MIT)
 
 ## Change log
 
+- (2.0.2) Minor changes;
 - (2.0.1) Added Embeddable property Path;
 		  Resolved thread safed of Data formatting;
 		  Minor updates;

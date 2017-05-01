@@ -143,6 +143,28 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	}
 
 	@Test
+	public void testGreaterThanString() throws Exception {
+		Node rootNode = new RSQLParser().parse("code=gt='ABC'");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals(1, courses.size());
+	}
+
+	@Test
+	public void testGreaterThanNotComparable() throws Exception {
+    	try {
+			Node rootNode = new RSQLParser().parse("details.teacher=gt='ABC'");
+			RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+			rootNode.accept(visitor, entityManager);
+			fail("should have failed since type isn't Comparable");
+		} catch (IllegalArgumentException e) {
+    		assertEquals("Invalid type for comparison operator: =gt= type: com.github.tennaito.rsql.jpa.entity.Teacher must implement Comparable<Teacher>", e.getMessage());
+		}
+	}
+
+	@Test
 	public void testGreaterThanEqualSelection() throws Exception {
 		Node rootNode = new RSQLParser().parse("id=ge=1");
 		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
@@ -160,6 +182,28 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
 		List<Course> courses = entityManager.createQuery(query).getResultList();
 		assertEquals("Testing Course", courses.get(0).getName());
+	}
+
+	@Test
+	public void testGreaterThanEqualSelectionForString() throws Exception {
+		Node rootNode = new RSQLParser().parse("code=ge='MI-MDW'");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+	}
+
+	@Test
+	public void testGreaterThanEqualNotComparable() throws Exception {
+		try {
+			Node rootNode = new RSQLParser().parse("details.teacher=ge='ABC'");
+			RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+			rootNode.accept(visitor, entityManager);
+			fail("should have failed since type isn't Comparable");
+		} catch (IllegalArgumentException e) {
+			assertEquals("Invalid type for comparison operator: =ge= type: com.github.tennaito.rsql.jpa.entity.Teacher must implement Comparable<Teacher>", e.getMessage());
+		}
 	}
 
 	@Test
@@ -193,6 +237,28 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	}
 
 	@Test
+	public void testLessThanString() throws Exception {
+		Node rootNode = new RSQLParser().parse("code=lt='MI-MDZ'");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals(1, courses.size());
+	}
+
+	@Test
+	public void testLessThanNotComparable() throws Exception {
+		try {
+			Node rootNode = new RSQLParser().parse("details.teacher=lt='ABC'");
+			RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+			rootNode.accept(visitor, entityManager);
+			fail("should have failed since type isn't Comparable");
+		} catch (IllegalArgumentException e) {
+			assertEquals("Invalid type for comparison operator: =lt= type: com.github.tennaito.rsql.jpa.entity.Teacher must implement Comparable<Teacher>", e.getMessage());
+		}
+	}
+
+	@Test
 	public void testLessThanEqualSelectionForDate() throws Exception {
 		Node rootNode = new RSQLParser().parse("startDate=le='2100-01-01'");
 		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
@@ -201,6 +267,29 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		List<Course> courses = entityManager.createQuery(query).getResultList();
 		assertEquals("Testing Course", courses.get(0).getName());
 	}
+
+	@Test
+	public void testLessThanEqualSelectionForString() throws Exception {
+		Node rootNode = new RSQLParser().parse("code=le='MI-MDW'");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+	}
+
+	@Test
+	public void testLessThanEqualNotComparable() throws Exception {
+		try {
+			Node rootNode = new RSQLParser().parse("details.teacher=le='ABC'");
+			RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+			rootNode.accept(visitor, entityManager);
+			fail("should have failed since type isn't Comparable");
+		} catch (IllegalArgumentException e) {
+			assertEquals("Invalid type for comparison operator: =le= type: com.github.tennaito.rsql.jpa.entity.Teacher must implement Comparable<Teacher>", e.getMessage());
+		}
+	}
+
 
 	@Test
     public void testInSelection() throws Exception {
@@ -574,12 +663,12 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	}
 
 	@Test
-	    public void testSelectionUsingEmbeddedAssociationField() throws Exception {
-			Node rootNode = new RSQLParser().parse("details.teacher.specialtyDescription==Maths");
-			RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
-			CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+	public void testSelectionUsingEmbeddedAssociationField() throws Exception {
+		Node rootNode = new RSQLParser().parse("details.teacher.specialtyDescription==Maths");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
-			List<Course> courses = entityManager.createQuery(query).getResultList();
-			assertEquals("Testing Course", courses.get(0).getName());
-		}
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+	}
 }

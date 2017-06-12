@@ -41,11 +41,16 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.Title;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -671,4 +676,19 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		List<Course> courses = entityManager.createQuery(query).getResultList();
 		assertEquals("Testing Course", courses.get(0).getName());
 	}
+
+    @Test
+    public void testSelectionUsingJoinByAlias() throws Exception {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Person> query = builder.createQuery(Person.class);
+
+        Root<Person> personRoot = query.from(Person.class);
+        Join<Person, Title> personTitleJoin = personRoot.join("titles", JoinType.LEFT);
+        personTitleJoin.alias("title");
+
+        Node rootNode = new RSQLParser().parse("title.name==Student");
+        JpaPredicateVisitor<Course> visitor = new JpaPredicateVisitor<Course>();
+        visitor.defineRoot(personRoot);
+        Predicate where = rootNode.accept(visitor, entityManager);
+    }
 }

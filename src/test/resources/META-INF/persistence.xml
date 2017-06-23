@@ -6,7 +6,7 @@
   			 version="2.0">
 	
 		
-	<!--	
+	<!--	 
 	 
 	<persistence-unit name="persistenceUnit">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
@@ -29,12 +29,12 @@
 		</properties>
 	</persistence-unit>
 	
- -->
+-->
 	
 	
 	
 	 
-	 <!-- --> 
+	 <!--  	-->
 	  
  	<persistence-unit name="persistenceUnit"> 
  		<provider>org.hibernate.ejb.HibernatePersistence</provider> 
@@ -42,6 +42,7 @@
  		<class>com.github.tennaito.rsql.jpa.entity.Department</class> 
  		<class>com.github.tennaito.rsql.jpa.entity.Person</class> 
  		<class>com.github.tennaito.rsql.jpa.entity.Title</class> 
+ 		<class>com.github.tennaito.rsql.jpa.entity.PersonDependent</class> 
  		<properties> 
  			<property name="javax.persistence.jdbc.driver"   		 value="org.hsqldb.jdbcDriver" /> 
  			<property name="javax.persistence.jdbc.url"       		 value="jdbc:hsqldb:mem:ProductDAOTest" /> 
@@ -55,5 +56,6 @@
  	
 
  	 
+ 
 
 </persistence>

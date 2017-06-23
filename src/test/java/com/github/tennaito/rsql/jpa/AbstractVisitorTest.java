@@ -28,14 +28,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.metamodel.EntityType;
 
-import com.github.tennaito.rsql.jpa.entity.Teacher;
 import org.junit.BeforeClass;
 
 import com.github.tennaito.rsql.jpa.entity.Course;
 import com.github.tennaito.rsql.jpa.entity.CourseDetails;
 import com.github.tennaito.rsql.jpa.entity.Department;
 import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.PersonDependent;
+import com.github.tennaito.rsql.jpa.entity.Teacher;
 import com.github.tennaito.rsql.jpa.entity.Title;
 
 /**
@@ -43,65 +45,92 @@ import com.github.tennaito.rsql.jpa.entity.Title;
  */
 public abstract class AbstractVisitorTest<T> {
 
-	private static boolean loaded = false;
+    private static boolean loaded = false;
 
     protected Class<T> entityClass;
     protected EntityManager entityManager;
 
-	@BeforeClass
-	public static void setUpBefore() throws Exception {
-		if (!loaded) {
-			
-			EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
-			entityManager.getTransaction().begin();
-			
-			Title title1 = new Title();
-			title1.setId(1L);
-			title1.setName("Phd");
-			entityManager.persist(title1);
-			
-			Title title2 = new Title();
-			title2.setId(2L);
-			title2.setName("Consultant");
-			entityManager.persist(title2);
-			
-			Set<Title> titles = new HashSet<Title>();
-			titles.add(title1);
-			titles.add(title2);
-			
-			Person head = new Person();
-			head.setId(1L);
-			head.setName("Some");
-			head.setSurname("One");
-			head.setTitles(titles);
-			entityManager.persist(head);
-			
-			Department department = new Department();
-			department.setId(1L);
-			department.setName("Testing");
-			department.setCode("MI-MDW");
-			department.setHead(head);
-			entityManager.persist(department);
+    @BeforeClass
+    public static void setUpBefore() throws Exception {
+        if (!loaded) {
 
-			Teacher teacher = new Teacher();
-			teacher.setId(23L);
-			teacher.setSpecialtyDescription("Maths");
-			entityManager.persist(teacher);
-			
-			Course c = new Course();
-			c.setId(1L);
-			c.setCode("MI-MDW");
-			c.setActive(true);
-			c.setCredits(10);
-			c.setName("Testing Course");
-			c.setDepartment(department);
-			c.setDetails(CourseDetails.of("test"));
-			c.getDetails().setTeacher(teacher);
-			c.setStartDate( new Date());
-			entityManager.persist(c);
-			
-			entityManager.getTransaction().commit();
-			loaded = true;
-		}
-	}
+            EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory()
+                    .createEntityManager();
+            entityManager.getTransaction().begin();
+
+            Title title1 = new Title();
+            title1.setId(1L);
+            title1.setName("Phd");
+            entityManager.persist(title1);
+
+            Title title2 = new Title();
+            title2.setId(2L);
+            title2.setName("Consultant");
+            entityManager.persist(title2);
+
+            Set<Title> titles = new HashSet<Title>();
+            titles.add(title1);
+            titles.add(title2);
+
+            Person head = new Person();
+            head.setId(1L);
+            head.setName("Some");
+            head.setSurname("One");
+            head.setTitles(titles);
+            entityManager.persist(head);
+
+            Department department = new Department();
+            department.setId(1L);
+            department.setName("Testing");
+            department.setCode("MI-MDW");
+            department.setHead(head);
+            entityManager.persist(department);
+
+            Teacher teacher = new Teacher();
+            teacher.setId(23L);
+            teacher.setSpecialtyDescription("Maths");
+            entityManager.persist(teacher);
+
+            Course c = new Course();
+            c.setId(1L);
+            c.setCode("MI-MDW");
+            c.setActive(true);
+            c.setCredits(10);
+            c.setName("Testing Course");
+            c.setDepartment(department);
+            c.setDetails(CourseDetails.of("test"));
+            c.getDetails().setTeacher(teacher);
+            c.setStartDate(new Date());
+            entityManager.persist(c);
+
+            if (hasEntity(PersonDependent.class)) {
+
+                PersonDependent dependent = new PersonDependent();
+                dependent.setAge(2);
+                dependent.getId().setName("son1");
+                dependent.getId().setPerson(head);
+                entityManager.persist(dependent);
+
+            }
+
+            entityManager.getTransaction().commit();
+            loaded = true;
+        }
+    }
+
+    public static boolean hasEntity(Class<?> clazz) {
+
+        Set<EntityType<?>> entities = EntityManagerFactoryInitializer.getEntityManagerFactory().getMetamodel()
+                .getEntities();
+
+        for (EntityType<?> entityType : entities) {
+
+            if (entityType.getJavaType().equals(clazz)) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
 }

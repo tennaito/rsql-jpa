@@ -56,6 +56,11 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	private From root;
 
+    /**
+     * Instance of predicate builder
+     */
+	private PredicateBuilder predicateBuilder;
+
 	/**
 	 * Construtor with template varargs for entityClass discovery.
 	 *
@@ -63,6 +68,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public JpaPredicateVisitor(T... t) {
 		super(t);
+        predicateBuilder = new PredicateBuilder();
 	}
 	
 	/**
@@ -80,7 +86,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public Predicate visit(AndNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for AndNode: {0}", node);
-		return PredicateBuilder.<T>createPredicate(node, root, entityClass, entityManager, getBuilderTools());
+		return predicateBuilder.createPredicate(node, root, entityClass, entityManager, getBuilderTools());
 	}
 
 	/* (non-Javadoc)
@@ -88,7 +94,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public Predicate visit(OrNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for OrNode: {0}", node);
-		return PredicateBuilder.<T>createPredicate(node, root, entityClass, entityManager, getBuilderTools());
+		return predicateBuilder.createPredicate(node, root, entityClass, entityManager, getBuilderTools());
 	}
 
 	/* (non-Javadoc)
@@ -96,6 +102,14 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 */
 	public Predicate visit(ComparisonNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
-    	return PredicateBuilder.<T>createPredicate(node, root, entityClass, entityManager, getBuilderTools());
+    	return predicateBuilder.createPredicate(node, root, entityClass, entityManager, getBuilderTools());
 	}
+
+    /**
+     * Used for testing
+     * @return
+     */
+    public PredicateBuilder getPredicateBuilder() {
+        return predicateBuilder;
+    }
 }

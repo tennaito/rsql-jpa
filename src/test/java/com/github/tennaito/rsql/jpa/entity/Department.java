@@ -27,6 +27,7 @@ package com.github.tennaito.rsql.jpa.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -42,6 +43,8 @@ public class Department extends AbstractTestEntity {
     @ManyToOne
     private Person head;
 
+    @OneToOne
+    private ObjTags tags;
 
     public String getCode() {
         return code;
@@ -59,4 +62,11 @@ public class Department extends AbstractTestEntity {
         this.head = head;
     }
 
+    public ObjTags getTags() {
+        return tags;
+    }
+
+    public void setTags(ObjTags tags) {
+        this.tags = tags;
+    }
 }

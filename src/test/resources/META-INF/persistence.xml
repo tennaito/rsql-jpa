@@ -7,6 +7,8 @@
 
 	<persistence-unit name="persistenceUnit-eclipse">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+		<class>com.github.tennaito.rsql.jpa.entity.Tag</class>
+		<class>com.github.tennaito.rsql.jpa.entity.ObjTags</class>
 		<class>com.github.tennaito.rsql.jpa.entity.Course</class>
 		<class>com.github.tennaito.rsql.jpa.entity.Department</class>
 		<class>com.github.tennaito.rsql.jpa.entity.Person</class>
@@ -28,6 +30,8 @@
 
  	<persistence-unit name="persistenceUnit-hibernate">
  		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>com.github.tennaito.rsql.jpa.entity.Tag</class>
+		<class>com.github.tennaito.rsql.jpa.entity.ObjTags</class>
  		<class>com.github.tennaito.rsql.jpa.entity.Course</class>
  		<class>com.github.tennaito.rsql.jpa.entity.Department</class>
  		<class>com.github.tennaito.rsql.jpa.entity.Person</class>

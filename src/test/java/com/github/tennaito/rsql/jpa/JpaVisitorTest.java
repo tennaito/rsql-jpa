@@ -28,7 +28,9 @@ import com.github.tennaito.rsql.builder.BuilderTools;
 import com.github.tennaito.rsql.jpa.entity.Course;
 import com.github.tennaito.rsql.jpa.entity.CourseDetails;
 import com.github.tennaito.rsql.jpa.entity.Department;
+import com.github.tennaito.rsql.jpa.entity.ObjTags;
 import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.Tag;
 import com.github.tennaito.rsql.jpa.entity.Teacher;
 import com.github.tennaito.rsql.jpa.entity.Title;
 import com.github.tennaito.rsql.misc.SimpleMapper;
@@ -50,7 +52,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
@@ -80,10 +81,10 @@ public class JpaVisitorTest {
     @Parameterized.Parameters
 	public static List<EntityManager[]> data() {
         final TestEntityManagerBuilder testEntityManagerBuilder = new TestEntityManagerBuilder();
-        final EntityManager eclipseEntityManager = Persistence.createEntityManagerFactory("persistenceUnit-eclipse").createEntityManager();
-        final EntityManager hibernateEntityManager = Persistence.createEntityManagerFactory("persistenceUnit-hibernate").createEntityManager();
+        final EntityManager eclipseEntityManager = testEntityManagerBuilder.buildEntityManager("persistenceUnit-eclipse");
         initialize(eclipseEntityManager);
-        initialize(hibernateEntityManager);
+		final EntityManager hibernateEntityManager = testEntityManagerBuilder.buildEntityManager("persistenceUnit-hibernate");
+		initialize(hibernateEntityManager);
 		return Arrays.asList(new EntityManager[]{eclipseEntityManager}, new EntityManager[]{ hibernateEntityManager});
 	}
 
@@ -122,11 +123,22 @@ public class JpaVisitorTest {
         head.setTitles(titles);
         entityManager.persist(head);
 
+        Tag tag = new Tag();
+        tag.setId(1L);
+        tag.setTag("TestTag");
+        entityManager.persist(tag);
+
+        ObjTags tags = new ObjTags();
+        tags.setId(1L);
+        tags.setTags(Arrays.asList(tag));
+        entityManager.persist(tags);
+
         Department department = new Department();
         department.setId(1L);
         department.setName("Testing");
         department.setCode("MI-MDW");
         department.setHead(head);
+        department.setTags(tags);
         entityManager.persist(department);
 
         Teacher teacher = new Teacher();
@@ -743,5 +755,15 @@ public class JpaVisitorTest {
 
 		List<Course> courses = entityManager.createQuery(query).getResultList();
 		assertEquals("Testing Course", courses.get(0).getName());
+	}
+
+	@Test
+	public void testNestedSelection() throws Exception {
+		Node rootNode = new RSQLParser().parse("tags.tags.tag=in=(TestTag)");
+		RSQLVisitor<CriteriaQuery<Department>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Department>();
+		CriteriaQuery<Department> query = rootNode.accept(visitor, entityManager);
+
+		List<Department> departments = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing", departments.get(0).getName());
 	}
 }

@@ -2,7 +2,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.tennaito</groupId>
+    <groupId>br.com.elotech</groupId>
     <artifactId>rsql-jpa</artifactId>
     <version>2.0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -30,9 +30,9 @@
     
 	<!--//////////////////// SCM    ////////////////////-->
     <scm>
-        <url>https://github.com/tennaito/rsql-jpa/</url>
-        <connection>scm:git:https://github.com/tennaito/rsql-jpa.git</connection>
-        <developerConnection>scm:git:https://github.com/tennaito/rsql-jpa.git</developerConnection>
+        <url>https://github.com/Elotech-Dev/rsql-jpa.git</url>
+        <connection>scm:git:https://github.com/Elotech-Dev/rsql-jpa.git</connection>
+        <developerConnection>scm:git:https://github.com/Elotech-Dev/rsql-jpa.git</developerConnection>
     	<tag>HEAD</tag>
   </scm>
 
@@ -267,20 +267,12 @@
     <!--//////////////////// DISTRIBUTION ////////////////////-->
 	<distributionManagement>
 		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<id>nexus</id>
+			<url>https://nexus.elotech.com.br/repositories/snapshots</url>
 		</snapshotRepository>
 		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<id>nexus</id>
+			<url>https://nexus.elotech.com.br/repositores/releases</url>
 		</repository>
 	</distributionManagement>	
-	<ciManagement>
-		<system>travis</system>
-		<url>https://travis-ci.org/tennaito/rsql-jpa</url>
-	</ciManagement>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/tennaito/rsql-jpa/issues</url>
-	</issueManagement>	
 </project>

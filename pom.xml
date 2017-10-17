@@ -113,8 +113,8 @@
 						<version>1.6.3</version>
 						<extensions>true</extensions>
 						<configuration>
-							<serverId>ossrh</serverId>
-							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<serverId>nexus</serverId>
+							<nexusUrl>https://nexus.elotech.com.br/</nexusUrl>
 							<autoReleaseAfterClose>false</autoReleaseAfterClose>
 						</configuration>
 					</plugin>
@@ -273,11 +273,10 @@
 		<snapshotRepository>
 			<id>nexus</id>
 			<url>http://nexus.elotech.com.br/repository/snapshots/</url>
-			
 		</snapshotRepository>
 		<repository>
 			<id>nexus</id>
 			<url>http://nexus.elotech.com.br/repository/releases/</url>
 		</repository>
-	</distributionManagement>	
+	</distributionManagement>
 </project>

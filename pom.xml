@@ -272,11 +272,12 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>nexus</id>
-			<url>https://nexus.elotech.com.br/repositories/snapshots</url>
+			<url>http://nexus.elotech.com.br/repository/snapshots/</url>
+			
 		</snapshotRepository>
 		<repository>
 			<id>nexus</id>
-			<url>https://nexus.elotech.com.br/repositores/releases</url>
+			<url>http://nexus.elotech.com.br/repository/releases/</url>
 		</repository>
 	</distributionManagement>	
 </project>

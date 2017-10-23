@@ -46,6 +46,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.github.tennaito.rsql.jpa.entity.Department;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -451,6 +452,25 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
 		((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).setMapping(null);
 		assertNull(((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).getMapping());
+	}
+
+	@Test
+	public void testChildAssociationAliasMapping() throws Exception {
+		Node rootNode = new RSQLParser().parse("c_code==MI-MDW; dep.d_code==MI-MDW");
+		JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
+		// add to SimpleMapper
+		SimpleMapper mapper = new SimpleMapper();
+		mapper.addMapping(Course.class, new HashMap<String, String>());
+		mapper.addMapping(Course.class, "c_code", "code");
+		mapper.addMapping(Course.class, "dep", "department");
+		mapper.addMapping(Department.class, new HashMap<String, String>());
+		mapper.addMapping(Department.class, "d_code", "code");
+		visitor.getBuilderTools().setPropertiesMapper(mapper);
+
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+		assertEquals("Testing", courses.get(0).getDepartment().getName());
 	}
 
 	@Test

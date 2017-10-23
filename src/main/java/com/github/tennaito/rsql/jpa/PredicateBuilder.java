@@ -200,8 +200,11 @@ public final class PredicateBuilder {
 
         for (String property : graph) {
             String mappedProperty = misc.getPropertiesMapper().translate(property, classMetadata.getJavaType());
-            if( !mappedProperty.equals( property) ) {
-                root = findPropertyPath( mappedProperty, root, entityManager, misc );
+            if (!mappedProperty.equals(property)) {
+                root = findPropertyPath(mappedProperty, root, entityManager, misc);
+                if (root instanceof Join) {
+                    classMetadata = metaModel.managedType(root.getJavaType());
+                }
             } else {
                 if (!hasPropertyName(mappedProperty, classMetadata)) {
                     throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());

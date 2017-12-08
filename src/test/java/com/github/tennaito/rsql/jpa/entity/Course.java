@@ -24,13 +24,20 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -64,7 +71,10 @@ public class Course extends AbstractTestEntity {
 
     @Embedded
     private CourseDetails details;
-
+    
+    @OneToMany(cascade=CascadeType.ALL)
+    private final List<Title> titles = new ArrayList<Title>();
+   
     public boolean isActive() {
         return active;
     }
@@ -120,4 +130,8 @@ public class Course extends AbstractTestEntity {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
+    
+    public List<Title> getTitles() {
+		return titles;
+	}
 }

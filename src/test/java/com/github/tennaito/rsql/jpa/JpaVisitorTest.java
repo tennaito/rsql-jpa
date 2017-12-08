@@ -24,6 +24,7 @@
 package com.github.tennaito.rsql.jpa;
 
 import static junit.framework.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -529,6 +530,9 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
         List<Course> courses = entityManager.createQuery(query).getResultList();
         assertEquals("Testing Course", courses.get(0).getName());
+        
+       
+        assertEquals(courses.size(), 1);
     }
 
     @Test
@@ -695,6 +699,19 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
         }
 
+    }
+    
+    @Test
+    public void testFilterOneToMany() throws Exception {
+        Node rootNode = new RSQLParser().parse("titles.id>=100 and titles.id<=101");
+
+        RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>(new Course());
+        CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+        List<Course> courses = entityManager.createQuery(query).getResultList();
+        assertEquals("Testing Course", courses.get(0).getName());
+        
+        assertEquals(2, courses.size());
     }
 
 }

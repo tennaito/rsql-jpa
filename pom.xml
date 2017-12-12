@@ -4,7 +4,7 @@
 
     <groupId>br.com.elotech</groupId>
     <artifactId>rsql-jpa</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <!--//////////////////// ABOUT ////////////////////-->
@@ -33,7 +33,7 @@
         <url>https://github.com/Elotech-Dev/rsql-jpa.git</url>
         <connection>scm:git:https://github.com/Elotech-Dev/rsql-jpa.git</connection>
         <developerConnection>scm:git:https://github.com/Elotech-Dev/rsql-jpa.git</developerConnection>
-    	<tag>2.0.4</tag>
+    	<tag>2.0.3</tag>
   </scm>
 
     <!--//////////////////// PROPERTIES ////////////////////-->

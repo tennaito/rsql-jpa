@@ -24,7 +24,9 @@
 package com.github.tennaito.rsql.jpa;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -73,6 +75,12 @@ public abstract class AbstractVisitorTest<T> {
             titles.add(title1);
             titles.add(title2);
 
+            Person person = new Person();
+            person.setId(2L);
+            person.setName("Other");
+            person.setSurname("Person");
+            entityManager.persist(person);
+
             Person head = new Person();
             head.setId(1L);
             head.setName("Some");
@@ -91,21 +99,18 @@ public abstract class AbstractVisitorTest<T> {
             teacher.setId(23L);
             teacher.setSpecialtyDescription("Maths");
             entityManager.persist(teacher);
-            
-
 
             Title titleCourse1 = new Title();
             titleCourse1.setId(100L);
             titleCourse1.setName("course 1");
-           
+
             Title titleCourse2 = new Title();
             titleCourse2.setId(101L);
             titleCourse2.setName("course 2");
-          
+
             Title titleCourse3 = new Title();
             titleCourse3.setId(102L);
             titleCourse3.setName("course 3");
-            
 
             Course c = new Course();
             c.setId(1L);
@@ -117,8 +122,26 @@ public abstract class AbstractVisitorTest<T> {
             c.setDetails(CourseDetails.of("test"));
             c.getDetails().setTeacher(teacher);
             c.setStartDate(new Date());
-            c.getTitles().addAll(Arrays.asList(titleCourse1,titleCourse2,titleCourse3));
+            c.getTitles().addAll(Arrays.asList(titleCourse1, titleCourse2, titleCourse3));
             entityManager.persist(c);
+
+            Department department1 = new Department();
+            department1.setId(0L);
+            department1.setName("Testing");
+            department1.setCode("z");
+            entityManager.persist(department1);
+
+            Course c1 = new Course();
+            c1.setId(0L);
+            c1.setCode("z");
+            c1.setActive(true);
+            c1.setCredits(10);
+            c1.setName("Testing Course");
+            c1.setDepartment(department1);
+            c1.setDetails(CourseDetails.of("test"));
+            c1.getDetails().setTeacher(teacher);
+            c1.setStartDate(new GregorianCalendar(1985, Calendar.FEBRUARY, 11).getTime());
+            entityManager.persist(c1);
 
             if (hasEntity(PersonDependent.class)) {
 
@@ -131,6 +154,7 @@ public abstract class AbstractVisitorTest<T> {
             }
 
             entityManager.getTransaction().commit();
+
             loaded = true;
         }
     }

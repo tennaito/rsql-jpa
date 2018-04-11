@@ -26,10 +26,7 @@ package com.github.tennaito.rsql.jpa.entity;
 
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 /**
  *
@@ -41,6 +38,9 @@ public class Person extends AbstractTestEntity {
     
     @Column
     private String surname;
+
+    @ManyToOne
+    private Room homeroom;
 
     @ManyToMany(cascade=CascadeType.PERSIST)
     private Set<Title> titles;

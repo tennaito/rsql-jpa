@@ -204,6 +204,14 @@ public final class PredicateBuilder {
                 root = findPropertyPath( mappedProperty, root, entityManager, misc );
             } else {
                 if (!hasPropertyName(mappedProperty, classMetadata)) {
+                    // mapped property not found on root, but we can still look up by join alias
+                    root = findJoinPath(root, mappedProperty);
+                    if (root != null) {
+                        String previousClass = classMetadata.getJavaType().getName();
+                        classMetadata = metaModel.managedType(root.getJavaType());
+                        LOG.log(Level.INFO, "Use named join between {0} and {1}: {2}", new Object[]{previousClass, classMetadata.getJavaType().getName(), root.getAlias()});
+                        continue;
+                    }
                     throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
                 }
 
@@ -231,6 +239,25 @@ public final class PredicateBuilder {
         }
 
         return root;
+    }
+
+    /**
+     * Find join path by alias.
+     *
+     * @param alias join alias
+     * @param root  root path
+     * @return join path, or {@code null} if not found
+     */
+    private static Path<?> findJoinPath(Path root, String alias) {
+        if (root instanceof From) {
+            From<?, ?> from = (From<?, ?>) root;
+            for (Join<?, ?> join : from.getJoins()) {
+                if (alias.equals(join.getAlias())) {
+                    return join;
+                }
+            }
+        }
+        return null;
     }
 
     ///////////////  TEMPLATE METHODS  ///////////////

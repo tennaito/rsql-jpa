@@ -1,9 +1,22 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'maven:3-alpine'
+      args '-v /root/.m2:/root/.m2'
+    }
+
+  }
   stages {
     stage('Build') {
+      agent {
+        docker {
+          args '-v /root/.m2:/root/.m2'
+          image 'maven:3-alpine'
+        }
+
+      }
       steps {
-        sh 'echo "lalal"'
+        sh 'maven clean install'
       }
     }
   }

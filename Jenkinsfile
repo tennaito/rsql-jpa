@@ -19,9 +19,10 @@ pipeline {
             echo 'teste'
           }
         }
-        stage('') {
+        stage('error') {
           steps {
             echo 'teste2'
+            sh 'exit -1'
           }
         }
       }

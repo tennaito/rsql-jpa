@@ -22,7 +22,7 @@ pipeline {
         stage('error') {
           steps {
             echo 'teste2'
-            sh 'exit -1'
+            sh 'exit 0'
           }
         }
       }

@@ -7,5 +7,10 @@ pipeline {
         sh 'mvn clean install'
       }
     }
+    stage('input') {
+      steps {
+        input(message: 'test', id: 'id', ok: 'ij')
+      }
+    }
   }
 }

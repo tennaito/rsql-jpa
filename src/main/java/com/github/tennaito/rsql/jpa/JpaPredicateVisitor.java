@@ -23,17 +23,17 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
-
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * JpaPredicateVisitor
@@ -50,7 +50,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 * Logger.
 	 */
 	private static final Logger LOG = Logger.getLogger(JpaPredicateVisitor.class.getName());
-	
+
 	/**
 	 * Root.
 	 */
@@ -70,7 +70,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 		super(t);
         predicateBuilder = new PredicateBuilder();
 	}
-	
+
 	/**
 	 * Define the From node.
 	 * @param root From node that expressions path depends on.
@@ -103,6 +103,10 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	public Predicate visit(ComparisonNode node, EntityManager entityManager) {
 		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
     	return predicateBuilder.createPredicate(node, root, entityClass, entityManager, getBuilderTools());
+	}
+
+	public Path findPropertyPath(String path, EntityManager entityManager) {
+		return predicateBuilder.findPropertyPath(path, root, entityManager, getBuilderTools());
 	}
 
     /**

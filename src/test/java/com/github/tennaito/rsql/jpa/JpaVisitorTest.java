@@ -24,17 +24,28 @@
 package com.github.tennaito.rsql.jpa;
 
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
+import com.github.tennaito.rsql.builder.BuilderTools;
+import com.github.tennaito.rsql.jpa.entity.Course;
+import com.github.tennaito.rsql.jpa.entity.CourseDetails;
+import com.github.tennaito.rsql.jpa.entity.Department;
+import com.github.tennaito.rsql.jpa.entity.ObjTags;
+import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.Tag;
+import com.github.tennaito.rsql.jpa.entity.Teacher;
+import com.github.tennaito.rsql.jpa.entity.Title;
+import com.github.tennaito.rsql.misc.SimpleMapper;
+import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,14 +63,6 @@ import javax.persistence.criteria.Root;
 import com.github.tennaito.rsql.jpa.entity.Department;
 import com.github.tennaito.rsql.jpa.entity.Person;
 import com.github.tennaito.rsql.jpa.entity.Title;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.github.tennaito.rsql.builder.BuilderTools;
-import com.github.tennaito.rsql.jpa.entity.Course;
-import com.github.tennaito.rsql.misc.SimpleMapper;
-import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
-
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.AbstractNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -69,17 +72,99 @@ import cz.jirutka.rsql.parser.ast.LogicalOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
+
 /**
  * @author AntonioRabelo
  */
-public class JpaVisitorTest extends AbstractVisitorTest<Course> {
+@RunWith(Parameterized.class)
+public class JpaVisitorTest {
+
+    @Parameterized.Parameters
+	public static List<EntityManager[]> data() {
+        final TestEntityManagerBuilder testEntityManagerBuilder = new TestEntityManagerBuilder();
+        final EntityManager eclipseEntityManager = testEntityManagerBuilder.buildEntityManager("persistenceUnit-eclipse");
+        initialize(eclipseEntityManager);
+		final EntityManager hibernateEntityManager = testEntityManagerBuilder.buildEntityManager("persistenceUnit-hibernate");
+		initialize(hibernateEntityManager);
+		return Arrays.asList(new EntityManager[]{eclipseEntityManager}, new EntityManager[]{ hibernateEntityManager});
+	}
 
 	final static XorNode xorNode = new XorNode(new ArrayList<Node>());
-	
-    @Before
-    public void setUp() throws Exception {
-    	entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
+
+    private final EntityManager entityManager;
+
+    private Class<Course> entityClass;
+
+	public JpaVisitorTest(EntityManager entityManager) {
+		this.entityManager = entityManager;
         entityClass = Course.class;
+	}
+
+    public static void initialize(EntityManager entityManager) {
+        entityManager.getTransaction().begin();
+
+        Title title1 = new Title();
+        title1.setId(1L);
+        title1.setName("Phd");
+        entityManager.persist(title1);
+
+        Title title2 = new Title();
+        title2.setId(2L);
+        title2.setName("Consultant");
+        entityManager.persist(title2);
+
+        Set<Title> titles = new HashSet<Title>();
+        titles.add(title1);
+        titles.add(title2);
+
+        Person head = new Person();
+        head.setId(1L);
+        head.setName("Some");
+        head.setSurname("One");
+        head.setTitles(titles);
+        entityManager.persist(head);
+
+        Tag tag = new Tag();
+        tag.setId(1L);
+        tag.setTag("TestTag");
+        entityManager.persist(tag);
+
+        ObjTags tags = new ObjTags();
+        tags.setId(1L);
+        tags.setTags(Arrays.asList(tag));
+        entityManager.persist(tags);
+
+        Department department = new Department();
+        department.setId(1L);
+        department.setName("Testing");
+        department.setCode("MI-MDW");
+        department.setHead(head);
+        department.setTags(tags);
+        entityManager.persist(department);
+
+        Teacher teacher = new Teacher();
+        teacher.setId(23L);
+        teacher.setSpecialtyDescription("Maths");
+        entityManager.persist(teacher);
+
+        Course c = new Course();
+        c.setId(1L);
+        c.setCode("MI-MDW");
+        c.setActive(true);
+        c.setCredits(10);
+        c.setName("Testing Course");
+        c.setDepartment(department);
+        c.setDetails(CourseDetails.of("test"));
+        c.getDetails().setTeacher(teacher);
+        c.setStartDate(new Date());
+        entityManager.persist(c);
+
+        entityManager.getTransaction().commit();
     }
 
     @Test
@@ -697,7 +782,17 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		assertEquals("Testing Course", courses.get(0).getName());
 	}
 
-    @Test
+	@Test
+	public void testNestedSelection() throws Exception {
+		Node rootNode = new RSQLParser().parse("tags.tags.tag=in=(TestTag)");
+		RSQLVisitor<CriteriaQuery<Department>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Department>();
+		CriteriaQuery<Department> query = rootNode.accept(visitor, entityManager);
+
+		List<Department> departments = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing", departments.get(0).getName());
+	}
+	
+	@Test
     public void testSelectionUsingJoinByAlias() throws Exception {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Person> query = builder.createQuery(Person.class);

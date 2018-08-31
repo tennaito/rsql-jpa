@@ -29,6 +29,7 @@ import com.github.tennaito.rsql.jpa.entity.Course;
 import com.github.tennaito.rsql.jpa.entity.CourseDetails;
 import com.github.tennaito.rsql.jpa.entity.Department;
 import com.github.tennaito.rsql.jpa.entity.ObjTags;
+import com.github.tennaito.rsql.jpa.entity.*;
 import com.github.tennaito.rsql.jpa.entity.Person;
 import com.github.tennaito.rsql.jpa.entity.Tag;
 import com.github.tennaito.rsql.jpa.entity.Teacher;
@@ -60,9 +61,6 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.github.tennaito.rsql.jpa.entity.Department;
-import com.github.tennaito.rsql.jpa.entity.Person;
-import com.github.tennaito.rsql.jpa.entity.Title;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.AbstractNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -168,19 +166,28 @@ public class JpaVisitorTest {
     }
 
     @Test
+	public void testNestedOneToManyPath() {
+		Node rootNode = new RSQLParser().parse("rooms.students.titles.title==Hello");
+
+		RSQLVisitor<CriteriaQuery<Building>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Building>();
+		CriteriaQuery<Building> query = rootNode.accept(visitor, entityManager);
+
+	}
+
+    @Test
     public void testUnknowProperty() throws Exception {
     	try {
     		Node rootNode = new RSQLParser().parse("invalid==1");
     		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
     		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
-    		
+
     		List<Course> courses = entityManager.createQuery(query).getResultList();
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown property: invalid from entity " + Course.class.getName(), e.getMessage());
     	}
     }
-    
+
     @Test
     public void testSimpleSelection() throws Exception {
     	Node rootNode = new RSQLParser().parse("id==1");
@@ -190,7 +197,7 @@ public class JpaVisitorTest {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
     @Test
     public void testSimpleSelectionWhenPassingArgumentInTemplate() throws Exception {
     	Node rootNode = new RSQLParser().parse("id==1");
@@ -201,7 +208,7 @@ public class JpaVisitorTest {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
 
     @Test
     public void testNotEqualSelection() throws Exception {
@@ -625,7 +632,7 @@ public class JpaVisitorTest {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
     @Test
     public void testNavigateThroughCollectionSelection() throws Exception {
     	Node rootNode = new RSQLParser().parse("department.head.titles.name==Phd");
@@ -635,7 +642,7 @@ public class JpaVisitorTest {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
     @Test
     public void testUnsupportedNode() throws Exception {
     	try{
@@ -645,23 +652,23 @@ public class JpaVisitorTest {
     		assertEquals("Unknown expression type: class com.github.tennaito.rsql.jpa.JpaVisitorTest$OtherNode", e.getMessage());
     	}
     }
-    
+
     @Test
     public void testSetBuilderTools() throws Exception {
     	JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
     	visitor.setBuilderTools(null);
     	assertNotNull(visitor.getBuilderTools());
-    	
+
     	visitor.getBuilderTools().setArgumentParser(null);
     	assertNotNull(visitor.getBuilderTools().getArgumentParser());
-    	
+
     	visitor.getBuilderTools().setPropertiesMapper(null);
     	assertNotNull(visitor.getBuilderTools().getPropertiesMapper());
-    	
+
     	visitor.getBuilderTools().setPredicateBuilder(null);
-    	assertNull(visitor.getBuilderTools().getPredicateBuilder());    	
-    }  
-    
+    	assertNull(visitor.getBuilderTools().getPredicateBuilder());
+    }
+
     @Test
     public void testUnsupportedLogicalNode() throws Exception {
     	try{
@@ -671,7 +678,7 @@ public class JpaVisitorTest {
     		assertEquals("Unknown operator: ^", e.getMessage());
     	}
     }
-    
+
     @Test
     public void testPrivateConstructor() throws Exception {
     	Constructor<PredicateBuilder> priv = PredicateBuilder.class.getDeclaredConstructor();
@@ -681,25 +688,25 @@ public class JpaVisitorTest {
     	Object predicateBuilder = priv.newInstance();
     	// When used it returns a instance?
     	assertNotNull(predicateBuilder);
-    }    
-    
+    }
+
     ////////////////////////// Mocks //////////////////////////
-    
+
     protected static class OtherNode extends AbstractNode {
 
 		public <R, A> R accept(RSQLVisitor<R, A> visitor, A param) {
 			throw new UnsupportedOperationException();
 		}
     }
-    
+
     protected static class XorNode extends LogicalNode {
 
     	final static LogicalOperator XOR = createLogicalOperatorXor();
-    	
+
 	    public XorNode(List<? extends Node> children) {
 	        super(XOR, children);
 	    }
-	    
+
 	    public static void setStaticFinalField(Field field, Object value) throws NoSuchFieldException, IllegalAccessException {
 	    	// we mark the field to be public
 	    	field.setAccessible(true);
@@ -722,7 +729,7 @@ public class JpaVisitorTest {
 				Constructor<LogicalOperator> cstr = LogicalOperator.class.getDeclaredConstructor(String.class, int.class, String.class);
 				sun.reflect.ReflectionFactory factory = sun.reflect.ReflectionFactory.getReflectionFactory();
 				xor = (LogicalOperator) factory.newConstructorAccessor(cstr).newInstance(new Object[]{"XOR", 2, "^"});
-				
+
 				Field ordinalField = Enum.class.getDeclaredField("ordinal");
 			    ordinalField.setAccessible(true);
 
@@ -749,8 +756,8 @@ public class JpaVisitorTest {
 		public <R, A> R accept(RSQLVisitor<R, A> visitor, A param) {
 			throw new UnsupportedOperationException();
 		}
-    }  
-    
+    }
+
     @Test
     public void testUndefinedRootForPredicate() throws Exception {
     	try {

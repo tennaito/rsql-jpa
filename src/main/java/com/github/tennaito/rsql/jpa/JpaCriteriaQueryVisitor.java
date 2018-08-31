@@ -65,7 +65,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 * 
 	 * @return Return the Predicate Visitor.
 	 */
-	protected JpaPredicateVisitor<T> getPredicateVisitor() {
+	public JpaPredicateVisitor<T> getPredicateVisitor() {
 		this.predicateVisitor.setBuilderTools(this.getBuilderTools());
 		return this.predicateVisitor;
 	}

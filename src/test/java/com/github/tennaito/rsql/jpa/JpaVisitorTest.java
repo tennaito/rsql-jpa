@@ -61,6 +61,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.junit.Ignore;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.AbstractNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -501,7 +502,7 @@ public class JpaVisitorTest {
 					throws IllegalArgumentException {
 				ComparisonNode comp = ((ComparisonNode)node);
 				ComparisonNode def = new ComparisonNode(ComparisonOperatorProxy.EQUAL.getOperator(), comp.getSelector(), comp.getArguments());
-				return PredicateBuilder.createPredicate(def, root, entity, manager, tools);
+				return new PredicateBuilder().createPredicate(def, root, entity, manager, tools);
 			}
 		};
     	visitor.getBuilderTools().setPredicateBuilder(predicateStrategy);
@@ -515,6 +516,19 @@ public class JpaVisitorTest {
 
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
+    }
+
+	@Test
+	public void testJoinCaching() throws Exception {
+		Node rootNode = new RSQLParser().parse("department.id==1,department.code==MI-MDW");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+
+        int joinCount = ((JpaCriteriaQueryVisitor)visitor).getPredicateVisitor().getPredicateBuilder().getJoinCount();
+        assertEquals(1,joinCount);
     }
 
 	@Test
@@ -646,7 +660,7 @@ public class JpaVisitorTest {
     @Test
     public void testUnsupportedNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(new OtherNode(), null, null, null, null);
+    		new PredicateBuilder().createPredicate(new OtherNode(), null, null, null, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown expression type: class com.github.tennaito.rsql.jpa.JpaVisitorTest$OtherNode", e.getMessage());
@@ -672,14 +686,14 @@ public class JpaVisitorTest {
     @Test
     public void testUnsupportedLogicalNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, null, Course.class, entityManager, null);
+    		new PredicateBuilder().createPredicate(JpaVisitorTest.xorNode, null, Course.class, entityManager, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown operator: ^", e.getMessage());
     	}
     }
 
-    @Test
+    @Ignore
     public void testPrivateConstructor() throws Exception {
     	Constructor<PredicateBuilder> priv = PredicateBuilder.class.getDeclaredConstructor();
     	// It is really private?

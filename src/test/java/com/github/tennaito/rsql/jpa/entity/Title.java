@@ -23,6 +23,7 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 
 /**
@@ -30,5 +31,8 @@ import javax.persistence.Entity;
  */
 @Entity
 public class Title extends AbstractTestEntity {
+
+    @Basic
+    String title;
 
 }

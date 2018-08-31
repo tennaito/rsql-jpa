@@ -24,36 +24,44 @@
 package com.github.tennaito.rsql.jpa;
 
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
+import com.github.tennaito.rsql.builder.BuilderTools;
+import com.github.tennaito.rsql.jpa.entity.Course;
+import com.github.tennaito.rsql.jpa.entity.CourseDetails;
+import com.github.tennaito.rsql.jpa.entity.Department;
+import com.github.tennaito.rsql.jpa.entity.ObjTags;
+import com.github.tennaito.rsql.jpa.entity.*;
+import com.github.tennaito.rsql.jpa.entity.Person;
+import com.github.tennaito.rsql.jpa.entity.Tag;
+import com.github.tennaito.rsql.jpa.entity.Teacher;
+import com.github.tennaito.rsql.jpa.entity.Title;
+import com.github.tennaito.rsql.misc.SimpleMapper;
+import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.github.tennaito.rsql.builder.BuilderTools;
-import com.github.tennaito.rsql.jpa.entity.Course;
-import com.github.tennaito.rsql.misc.SimpleMapper;
-import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
-
+import org.junit.Ignore;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.AbstractNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -63,18 +71,109 @@ import cz.jirutka.rsql.parser.ast.LogicalOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
+
 /**
  * @author AntonioRabelo
  */
-public class JpaVisitorTest extends AbstractVisitorTest<Course> {
+@RunWith(Parameterized.class)
+public class JpaVisitorTest {
+
+    @Parameterized.Parameters
+	public static List<EntityManager[]> data() {
+        final TestEntityManagerBuilder testEntityManagerBuilder = new TestEntityManagerBuilder();
+        final EntityManager eclipseEntityManager = testEntityManagerBuilder.buildEntityManager("persistenceUnit-eclipse");
+        initialize(eclipseEntityManager);
+		final EntityManager hibernateEntityManager = testEntityManagerBuilder.buildEntityManager("persistenceUnit-hibernate");
+		initialize(hibernateEntityManager);
+		return Arrays.asList(new EntityManager[]{eclipseEntityManager}, new EntityManager[]{ hibernateEntityManager});
+	}
 
 	final static XorNode xorNode = new XorNode(new ArrayList<Node>());
-	
-    @Before
-    public void setUp() throws Exception {
-    	entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
+
+    private final EntityManager entityManager;
+
+    private Class<Course> entityClass;
+
+	public JpaVisitorTest(EntityManager entityManager) {
+		this.entityManager = entityManager;
         entityClass = Course.class;
+	}
+
+    public static void initialize(EntityManager entityManager) {
+        entityManager.getTransaction().begin();
+
+        Title title1 = new Title();
+        title1.setId(1L);
+        title1.setName("Phd");
+        entityManager.persist(title1);
+
+        Title title2 = new Title();
+        title2.setId(2L);
+        title2.setName("Consultant");
+        entityManager.persist(title2);
+
+        Set<Title> titles = new HashSet<Title>();
+        titles.add(title1);
+        titles.add(title2);
+
+        Person head = new Person();
+        head.setId(1L);
+        head.setName("Some");
+        head.setSurname("One");
+        head.setTitles(titles);
+        entityManager.persist(head);
+
+        Tag tag = new Tag();
+        tag.setId(1L);
+        tag.setTag("TestTag");
+        entityManager.persist(tag);
+
+        ObjTags tags = new ObjTags();
+        tags.setId(1L);
+        tags.setTags(Arrays.asList(tag));
+        entityManager.persist(tags);
+
+        Department department = new Department();
+        department.setId(1L);
+        department.setName("Testing");
+        department.setCode("MI-MDW");
+        department.setHead(head);
+        department.setTags(tags);
+        entityManager.persist(department);
+
+        Teacher teacher = new Teacher();
+        teacher.setId(23L);
+        teacher.setSpecialtyDescription("Maths");
+        entityManager.persist(teacher);
+
+        Course c = new Course();
+        c.setId(1L);
+        c.setCode("MI-MDW");
+        c.setActive(true);
+        c.setCredits(10);
+        c.setName("Testing Course");
+        c.setDepartment(department);
+        c.setDetails(CourseDetails.of("test"));
+        c.getDetails().setTeacher(teacher);
+        c.setStartDate(new Date());
+        entityManager.persist(c);
+
+        entityManager.getTransaction().commit();
     }
+
+    @Test
+	public void testNestedOneToManyPath() {
+		Node rootNode = new RSQLParser().parse("rooms.students.titles.title==Hello");
+
+		RSQLVisitor<CriteriaQuery<Building>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Building>();
+		CriteriaQuery<Building> query = rootNode.accept(visitor, entityManager);
+
+	}
 
     @Test
     public void testUnknowProperty() throws Exception {
@@ -82,14 +181,14 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     		Node rootNode = new RSQLParser().parse("invalid==1");
     		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
     		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
-    		
+
     		List<Course> courses = entityManager.createQuery(query).getResultList();
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown property: invalid from entity " + Course.class.getName(), e.getMessage());
     	}
     }
-    
+
     @Test
     public void testSimpleSelection() throws Exception {
     	Node rootNode = new RSQLParser().parse("id==1");
@@ -99,7 +198,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
     @Test
     public void testSimpleSelectionWhenPassingArgumentInTemplate() throws Exception {
     	Node rootNode = new RSQLParser().parse("id==1");
@@ -110,7 +209,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
 
     @Test
     public void testNotEqualSelection() throws Exception {
@@ -403,7 +502,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 					throws IllegalArgumentException {
 				ComparisonNode comp = ((ComparisonNode)node);
 				ComparisonNode def = new ComparisonNode(ComparisonOperatorProxy.EQUAL.getOperator(), comp.getSelector(), comp.getArguments());
-				return PredicateBuilder.createPredicate(def, root, entity, manager, tools);
+				return new PredicateBuilder().createPredicate(def, root, entity, manager, tools);
 			}
 		};
     	visitor.getBuilderTools().setPredicateBuilder(predicateStrategy);
@@ -417,6 +516,19 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
+    }
+
+	@Test
+	public void testJoinCaching() throws Exception {
+		Node rootNode = new RSQLParser().parse("department.id==1,department.code==MI-MDW");
+		RSQLVisitor<CriteriaQuery<Course>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Course>();
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+
+        int joinCount = ((JpaCriteriaQueryVisitor)visitor).getPredicateVisitor().getPredicateBuilder().getJoinCount();
+        assertEquals(1,joinCount);
     }
 
 	@Test
@@ -451,6 +563,25 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 
 		((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).setMapping(null);
 		assertNull(((SimpleMapper)visitor.getBuilderTools().getPropertiesMapper()).getMapping());
+	}
+
+	@Test
+	public void testChildAssociationAliasMapping() throws Exception {
+		Node rootNode = new RSQLParser().parse("c_code==MI-MDW; dep.d_code==MI-MDW");
+		JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
+		// add to SimpleMapper
+		SimpleMapper mapper = new SimpleMapper();
+		mapper.addMapping(Course.class, new HashMap<String, String>());
+		mapper.addMapping(Course.class, "c_code", "code");
+		mapper.addMapping(Course.class, "dep", "department");
+		mapper.addMapping(Department.class, new HashMap<String, String>());
+		mapper.addMapping(Department.class, "d_code", "code");
+		visitor.getBuilderTools().setPropertiesMapper(mapper);
+
+		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
+		List<Course> courses = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing Course", courses.get(0).getName());
+		assertEquals("Testing", courses.get(0).getDepartment().getName());
 	}
 
 	@Test
@@ -515,7 +646,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
     @Test
     public void testNavigateThroughCollectionSelection() throws Exception {
     	Node rootNode = new RSQLParser().parse("department.head.titles.name==Phd");
@@ -525,44 +656,44 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	List<Course> courses = entityManager.createQuery(query).getResultList();
     	assertEquals("Testing Course", courses.get(0).getName());
     }
-    
+
     @Test
     public void testUnsupportedNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(new OtherNode(), null, null, null, null);
+    		new PredicateBuilder().createPredicate(new OtherNode(), null, null, null, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown expression type: class com.github.tennaito.rsql.jpa.JpaVisitorTest$OtherNode", e.getMessage());
     	}
     }
-    
+
     @Test
     public void testSetBuilderTools() throws Exception {
     	JpaCriteriaQueryVisitor<Course> visitor = new JpaCriteriaQueryVisitor<Course>();
     	visitor.setBuilderTools(null);
     	assertNotNull(visitor.getBuilderTools());
-    	
+
     	visitor.getBuilderTools().setArgumentParser(null);
     	assertNotNull(visitor.getBuilderTools().getArgumentParser());
-    	
+
     	visitor.getBuilderTools().setPropertiesMapper(null);
     	assertNotNull(visitor.getBuilderTools().getPropertiesMapper());
-    	
+
     	visitor.getBuilderTools().setPredicateBuilder(null);
-    	assertNull(visitor.getBuilderTools().getPredicateBuilder());    	
-    }  
-    
+    	assertNull(visitor.getBuilderTools().getPredicateBuilder());
+    }
+
     @Test
     public void testUnsupportedLogicalNode() throws Exception {
     	try{
-    		PredicateBuilder.createPredicate(JpaVisitorTest.xorNode, null, Course.class, entityManager, null);
+    		new PredicateBuilder().createPredicate(JpaVisitorTest.xorNode, null, Course.class, entityManager, null);
     		fail();
     	} catch (IllegalArgumentException e) {
     		assertEquals("Unknown operator: ^", e.getMessage());
     	}
     }
-    
-    @Test
+
+    @Ignore
     public void testPrivateConstructor() throws Exception {
     	Constructor<PredicateBuilder> priv = PredicateBuilder.class.getDeclaredConstructor();
     	// It is really private?
@@ -571,25 +702,25 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	Object predicateBuilder = priv.newInstance();
     	// When used it returns a instance?
     	assertNotNull(predicateBuilder);
-    }    
-    
+    }
+
     ////////////////////////// Mocks //////////////////////////
-    
+
     protected static class OtherNode extends AbstractNode {
 
 		public <R, A> R accept(RSQLVisitor<R, A> visitor, A param) {
 			throw new UnsupportedOperationException();
 		}
     }
-    
+
     protected static class XorNode extends LogicalNode {
 
     	final static LogicalOperator XOR = createLogicalOperatorXor();
-    	
+
 	    public XorNode(List<? extends Node> children) {
 	        super(XOR, children);
 	    }
-	    
+
 	    public static void setStaticFinalField(Field field, Object value) throws NoSuchFieldException, IllegalAccessException {
 	    	// we mark the field to be public
 	    	field.setAccessible(true);
@@ -612,7 +743,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 				Constructor<LogicalOperator> cstr = LogicalOperator.class.getDeclaredConstructor(String.class, int.class, String.class);
 				sun.reflect.ReflectionFactory factory = sun.reflect.ReflectionFactory.getReflectionFactory();
 				xor = (LogicalOperator) factory.newConstructorAccessor(cstr).newInstance(new Object[]{"XOR", 2, "^"});
-				
+
 				Field ordinalField = Enum.class.getDeclaredField("ordinal");
 			    ordinalField.setAccessible(true);
 
@@ -639,8 +770,8 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		public <R, A> R accept(RSQLVisitor<R, A> visitor, A param) {
 			throw new UnsupportedOperationException();
 		}
-    }  
-    
+    }
+
     @Test
     public void testUndefinedRootForPredicate() throws Exception {
     	try {
@@ -671,4 +802,29 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		List<Course> courses = entityManager.createQuery(query).getResultList();
 		assertEquals("Testing Course", courses.get(0).getName());
 	}
+
+	@Test
+	public void testNestedSelection() throws Exception {
+		Node rootNode = new RSQLParser().parse("tags.tags.tag=in=(TestTag)");
+		RSQLVisitor<CriteriaQuery<Department>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Department>();
+		CriteriaQuery<Department> query = rootNode.accept(visitor, entityManager);
+
+		List<Department> departments = entityManager.createQuery(query).getResultList();
+		assertEquals("Testing", departments.get(0).getName());
+	}
+	
+	@Test
+    public void testSelectionUsingJoinByAlias() throws Exception {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Person> query = builder.createQuery(Person.class);
+
+        Root<Person> personRoot = query.from(Person.class);
+        Join<Person, Title> personTitleJoin = personRoot.join("titles", JoinType.LEFT);
+        personTitleJoin.alias("title");
+
+        Node rootNode = new RSQLParser().parse("title.name==Student");
+        JpaPredicateVisitor<Course> visitor = new JpaPredicateVisitor<Course>();
+        visitor.defineRoot(personRoot);
+        Predicate where = rootNode.accept(visitor, entityManager);
+    }
 }

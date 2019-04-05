@@ -46,6 +46,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.github.tennaito.rsql.jpa.entity.Person;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -119,7 +120,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
     	List<Course> courses = entityManager.createQuery(query).getResultList();
-    	assertEquals(0, courses.size());
+    	assertEquals(1, courses.size());
     }
 
     @Test
@@ -129,7 +130,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
     	List<Course> courses = entityManager.createQuery(query).getResultList();
-    	assertEquals(0, courses.size());
+    	assertEquals(1, courses.size());
     }
 
 	@Test
@@ -139,7 +140,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
 		List<Course> courses = entityManager.createQuery(query).getResultList();
-		assertEquals(1, courses.size());
+		assertEquals(2, courses.size());
 	}
 
 	@Test
@@ -149,7 +150,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
 		List<Course> courses = entityManager.createQuery(query).getResultList();
-		assertEquals(1, courses.size());
+		assertEquals(2, courses.size());
 	}
 
 	@Test
@@ -195,6 +196,29 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	}
 
 	@Test
+	public void testEqualSelectionForStringInElementCollection() {
+		Node rootNode = new RSQLParser().parse("courses=='MI-MDW'");
+		RSQLVisitor<CriteriaQuery<Person>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Person>();
+		CriteriaQuery<Person> query = rootNode.accept(visitor, entityManager);
+
+		List<Person> courses = entityManager.createQuery(query).getResultList();
+		assertEquals(1, courses.size());
+	}
+
+
+	@Test
+	public void testEqualSelectionForStringInElementCollectionFailed() {
+		Node rootNode = new RSQLParser().parse("courses=='DE-MDW'");
+		RSQLVisitor<CriteriaQuery<Person>, EntityManager> visitor = new JpaCriteriaQueryVisitor<Person>();
+		CriteriaQuery<Person> query = rootNode.accept(visitor, entityManager);
+
+		List<Person> courses = entityManager.createQuery(query).getResultList();
+		assertEquals(0, courses.size());
+	}
+
+
+
+	@Test
 	public void testGreaterThanEqualNotComparable() throws Exception {
 		try {
 			Node rootNode = new RSQLParser().parse("details.teacher=ge='ABC'");
@@ -233,7 +257,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
 		List<Course> courses = entityManager.createQuery(query).getResultList();
-		assertEquals(1, courses.size());
+		assertEquals(2, courses.size());
 	}
 
 	@Test
@@ -243,7 +267,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 		CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
 		List<Course> courses = entityManager.createQuery(query).getResultList();
-		assertEquals(1, courses.size());
+		assertEquals(2, courses.size());
 	}
 
 	@Test
@@ -328,7 +352,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	CriteriaQuery<Course> query = rootNode.accept(visitor, entityManager);
 
     	List<Course> courses = entityManager.createQuery(query).getResultList();
-    	assertEquals(0, courses.size());
+    	assertEquals(1, courses.size());
     }
 
 
@@ -503,7 +527,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
         CriteriaQuery<Long> query = rootNode.accept(visitor, entityManager);
 
         Long courseCount = entityManager.createQuery(query).getSingleResult();
-        assertEquals((Long)1l, courseCount);
+        assertEquals((Long) 2L, courseCount);
     }
 
     @Test
@@ -572,7 +596,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
     	// When used it returns a instance?
     	assertNotNull(predicateBuilder);
     }    
-    
+
     ////////////////////////// Mocks //////////////////////////
     
     protected static class OtherNode extends AbstractNode {

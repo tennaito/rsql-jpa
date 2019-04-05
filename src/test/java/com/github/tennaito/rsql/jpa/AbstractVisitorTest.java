@@ -23,20 +23,15 @@
  */
 package com.github.tennaito.rsql.jpa;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 
-import com.github.tennaito.rsql.jpa.entity.Teacher;
+import com.github.tennaito.rsql.jpa.entity.*;
 import org.junit.BeforeClass;
-
-import com.github.tennaito.rsql.jpa.entity.Course;
-import com.github.tennaito.rsql.jpa.entity.CourseDetails;
-import com.github.tennaito.rsql.jpa.entity.Department;
-import com.github.tennaito.rsql.jpa.entity.Person;
-import com.github.tennaito.rsql.jpa.entity.Title;
 
 /**
  * @author AntonioRabelo
@@ -45,11 +40,11 @@ public abstract class AbstractVisitorTest<T> {
 
 	private static boolean loaded = false;
 
-    protected Class<T> entityClass;
-    protected EntityManager entityManager;
+    Class<T> entityClass;
+    EntityManager entityManager;
 
 	@BeforeClass
-	public static void setUpBefore() throws Exception {
+	public static void setUpBefore() {
 		if (!loaded) {
 			
 			EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
@@ -75,6 +70,20 @@ public abstract class AbstractVisitorTest<T> {
 			head.setSurname("One");
 			head.setTitles(titles);
 			entityManager.persist(head);
+
+			Person student1 = new Person();
+			student1.setId(2L);
+			student1.setName("Manfred");
+			student1.setSurname("Bayo");
+			student1.setTitles(titles);
+			entityManager.persist(student1);
+
+			Person student2 = new Person();
+			student2.setId(3L);
+			student2.setName("Bob");
+			student2.setSurname("Dilan");
+			student2.setTitles(titles);
+			entityManager.persist(student2);
 			
 			Department department = new Department();
 			department.setId(1L);
@@ -83,11 +92,23 @@ public abstract class AbstractVisitorTest<T> {
 			department.setHead(head);
 			entityManager.persist(department);
 
+			Department department2 = new Department();
+			department2.setId(2L);
+			department2.setName("Testing2");
+			department2.setCode("DE-MDW");
+			department2.setHead(head);
+			entityManager.persist(department2);
+
 			Teacher teacher = new Teacher();
 			teacher.setId(23L);
 			teacher.setSpecialtyDescription("Maths");
 			entityManager.persist(teacher);
-			
+
+			Teacher teacher2 = new Teacher();
+			teacher2.setId(24L);
+			teacher2.setSpecialtyDescription("Physics");
+			entityManager.persist(teacher2);
+
 			Course c = new Course();
 			c.setId(1L);
 			c.setCode("MI-MDW");
@@ -99,6 +120,36 @@ public abstract class AbstractVisitorTest<T> {
 			c.getDetails().setTeacher(teacher);
 			c.setStartDate( new Date());
 			entityManager.persist(c);
+
+			Course c2 = new Course();
+			c2.setId(2L);
+			c2.setCode("BI-MDW");
+			c2.setActive(true);
+			c2.setCredits(10);
+			c2.setName("Testing Physics");
+			c2.setDepartment(department2);
+			c2.setDetails(CourseDetails.of("test"));
+			c2.getDetails().setTeacher(teacher2);
+			c2.setStartDate( new Date());
+			entityManager.persist(c2);
+
+			PersonCourse personCourse  = new PersonCourse();
+			personCourse.setId(1L);
+			personCourse.setCode(c.getCode());
+			personCourse.setPersonId(student1.getId());
+			entityManager.persist(personCourse);
+
+			PersonCourse personCourse2  = new PersonCourse();
+			personCourse2.setId(2L);
+			personCourse2.setCode(c2.getCode());
+			personCourse2.setPersonId(student1.getId());
+			entityManager.persist(personCourse2);
+
+			PersonCourse personCourse3  = new PersonCourse();
+			personCourse3.setId(3L);
+			personCourse3.setCode(c2.getCode());
+			personCourse3.setPersonId(student2.getId());
+			entityManager.persist(personCourse3);
 			
 			entityManager.getTransaction().commit();
 			loaded = true;

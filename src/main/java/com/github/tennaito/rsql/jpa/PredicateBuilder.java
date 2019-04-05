@@ -207,11 +207,25 @@ public final class PredicateBuilder {
                     throw new IllegalArgumentException("Unknown property: " + mappedProperty + " from entity " + classMetadata.getJavaType().getName());
                 }
 
-                if (isAssociationType(mappedProperty, classMetadata)) {
+                //Add Support of ElementCollection which was forgotten in hibernate version 5.2.15.Final
+                /**
+                 * see org.hibernate.metamodel.internal.isAssociation()
+                 * public boolean isAssociation() {
+                 *         return this.getPersistentAttributeType() == PersistentAttributeType.MANY_TO_ONE || this.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_ONE;
+                 *     }
+                 */
+                if (isAssociationType(mappedProperty, classMetadata) ||
+                            classMetadata.getAttribute(mappedProperty).getPersistentAttributeType() == PersistentAttributeType.ELEMENT_COLLECTION){
+
                     Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
                     String previousClass = classMetadata.getJavaType().getName();
-                    classMetadata = metaModel.managedType(associationType);
-                    LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
+
+                    if (isAssociationType(mappedProperty, classMetadata)) {
+                        classMetadata = metaModel.managedType(associationType);
+                        LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
+                    } else {
+                        LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, mappedProperty});
+                    }
 
                     if (root instanceof Join) {
                         root = root.get(mappedProperty);

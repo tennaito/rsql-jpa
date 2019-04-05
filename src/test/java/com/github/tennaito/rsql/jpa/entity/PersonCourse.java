@@ -24,44 +24,38 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import java.util.Set;
-
-import javax.persistence.*;
 
 /**
  *
- * @author Jakub Jirutka <jakub@jirutka.cz>
- * @author Antonio Rabelo
+ * @author Merlin Fotsing
  */
 @Entity
-public class Person extends AbstractTestEntity {
+public class PersonCourse extends AbstractTestEntity {
     
     @Column
-    private String surname;
+    private Long personId;
 
-    @ManyToMany(cascade=CascadeType.PERSIST)
-    private Set<Title> titles;
+    @Column
+    private String code;
 
-    @ElementCollection(targetClass = String.class)
-    @CollectionTable(name = "PersonCourse", joinColumns = @JoinColumn(name = "personId"))
-    @Column(name = "code")
-    private List<String> courses = new ArrayList<String>();
-
-    public String getSurname() {
-        return surname;
+    public Long getPersonId() {
+        return personId;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
+    public void setPersonId(Long personId) {
+        this.personId = personId;
     }
 
-	public Set<Title> getTitles() {
-		return titles;
-	}
+    public String getCode() {
+        return code;
+    }
 
-	public void setTitles(Set<Title> titles) {
-		this.titles = titles;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

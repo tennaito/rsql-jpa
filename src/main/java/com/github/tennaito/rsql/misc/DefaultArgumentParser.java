@@ -29,9 +29,12 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,7 +52,7 @@ public class DefaultArgumentParser implements ArgumentParser {
 	private static final Logger LOG = Logger.getLogger(DefaultArgumentParser.class.getName());
 
     private static final String DATE_PATTERN = "yyyy-MM-dd"; //ISO 8601
-    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss"; //ISO 8601
+    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSX"; //ISO 8601
 
     /* (non-Javadoc)
      * @see br.tennaito.rsql.misc.ArgumentParser#parse(java.lang.String, java.lang.Class)
@@ -83,6 +86,10 @@ public class DefaultArgumentParser implements ArgumentParser {
             return (T) parseDate(argument, type);
         }
 
+        if (type.equals(LocalDateTime.class)) {
+            return (T) parseLocalDateTime(argument, type);
+        }
+
         // try to parse via valueOf(String s) method
         try {
         	LOG.log(Level.INFO, "Trying to get and invoke valueOf(String s) method on {0}", type);
@@ -98,8 +105,11 @@ public class DefaultArgumentParser implements ArgumentParser {
 
     private <T> Date parseDate(String argument, Class<T> type) {
         try {
-            return new SimpleDateFormat(DATE_TIME_PATTERN).parse(argument);
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_PATTERN);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			return sdf.parse(argument);
         } catch (ParseException ex) {
+        	ex.printStackTrace();
             LOG.log(Level.INFO, "Not a date time format, lets try with date format.");
         }
         try {
@@ -107,6 +117,10 @@ public class DefaultArgumentParser implements ArgumentParser {
         } catch (ParseException ex1) {
             throw new ArgumentFormatException(argument, type);
         }
+    }
+    
+    private <T> LocalDateTime parseLocalDateTime(String argument, Class<T> type) {
+    	return LocalDateTime.ofInstant(parseDate(argument, type).toInstant(), ZoneId.of("UTC"));
     }
 
 	/* (non-Javadoc)

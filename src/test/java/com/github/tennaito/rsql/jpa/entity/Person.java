@@ -24,12 +24,11 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 /**
  *
@@ -44,7 +43,12 @@ public class Person extends AbstractTestEntity {
 
     @ManyToMany(cascade=CascadeType.PERSIST)
     private Set<Title> titles;
-    
+
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(name = "PersonCourse", joinColumns = @JoinColumn(name = "personId"))
+    @Column(name = "code")
+    private List<String> courses = new ArrayList<String>();
+
     public String getSurname() {
         return surname;
     }

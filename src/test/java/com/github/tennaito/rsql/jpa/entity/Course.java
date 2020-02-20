@@ -24,13 +24,13 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
-import java.util.Date;
 
 /**
  *
@@ -56,10 +56,7 @@ public class Course extends AbstractTestEntity {
     private Date endDate;
 
     @ManyToOne
-    @JoinColumns({
-    	@JoinColumn(name="id", referencedColumnName="id", insertable=false, updatable=false),
-    	@JoinColumn(name="code", referencedColumnName="code", insertable=false, updatable=false)
-    })
+    @JoinColumn(name = "dept_id")
     private Department department;
 
     @Embedded

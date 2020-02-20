@@ -1,6 +1,7 @@
 /*
  * The MIT License
  *
+ * Copyright 2013 Jakub Jirutka <jakub@jirutka.cz>.
  * Copyright 2015 Antonio Rabelo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,23 +22,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.tennaito.rsql.jpa;
+package com.github.tennaito.rsql.jpa.entity;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import java.util.Set;
 
 /**
- * @author Antonio Rabelo
+ *
+ * @author Merlin Fotsing
  */
-public class EntityManagerFactoryInitializer {
+@Entity
+public class PersonCourse extends AbstractTestEntity {
+    
+    @Column
+    private Long personId;
 
-    private static EntityManagerFactory instance;
+    @Column
+    private String code;
 
+    public Long getPersonId() {
+        return personId;
+    }
 
-    public static EntityManagerFactory getEntityManagerFactory() {
-        if (instance != null) return instance;
-        instance = Persistence.createEntityManagerFactory("persistenceUnit");
+    public void setPersonId(Long personId) {
+        this.personId = personId;
+    }
 
-        return instance;
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

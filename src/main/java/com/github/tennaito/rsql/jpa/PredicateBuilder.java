@@ -24,25 +24,6 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import com.github.tennaito.rsql.builder.BuilderTools;
-import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
-import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.LogicalNode;
-import cz.jirutka.rsql.parser.ast.Node;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.PluralAttribute;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,6 +31,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
+import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
+
+import com.github.tennaito.rsql.builder.BuilderTools;
+import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
+
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.Node;
+
 
 /**
  * PredicateBuilder
@@ -214,8 +216,7 @@ public final class PredicateBuilder {
                  *         return this.getPersistentAttributeType() == PersistentAttributeType.MANY_TO_ONE || this.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_ONE;
                  *     }
                  */
-                if (isAssociationType(mappedProperty, classMetadata) ||
-                            classMetadata.getAttribute(mappedProperty).getPersistentAttributeType() == PersistentAttributeType.ELEMENT_COLLECTION){
+                if (isAssociationType(mappedProperty, classMetadata) || classMetadata.getAttribute(mappedProperty).getPersistentAttributeType() == PersistentAttributeType.ELEMENT_COLLECTION) {
 
                     Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
                     String previousClass = classMetadata.getJavaType().getName();
@@ -227,10 +228,10 @@ public final class PredicateBuilder {
                         LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, mappedProperty});
                     }
 
-                    if (root instanceof Join) {
-                        root = root.get(mappedProperty);
-                    } else {
+                    if (root instanceof From) {
                         root = ((From) root).join(mappedProperty);
+                    } else {
+                        root = root.get(mappedProperty);
                     }
                 } else {
                     LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});

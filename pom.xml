@@ -1,316 +1,309 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.tennaito</groupId>
-    <artifactId>rsql-jpa</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
-    <packaging>jar</packaging>
+	<groupId>com.github.tennaito</groupId>
+	<artifactId>rsql-jpa</artifactId>
+	<version>2.0.3-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-    <!--//////////////////// ABOUT ////////////////////-->
-    <name>RSQL-JPA</name>
-    <inceptionYear>2015</inceptionYear>
-    <description>A application used to translate RSQL nodes to JPA Criteria Query.</description>
-    <url>http://github.com/tennaito/rsql-jpa</url>
+	<!--//////////////////// ABOUT //////////////////// -->
+	<name>RSQL-JPA</name>
+	<inceptionYear>2015</inceptionYear>
+	<description>A application used to translate RSQL nodes to JPA Criteria Query.</description>
+	<url>http://github.com/tennaito/rsql-jpa</url>
 
-    <!--//////////////////// LICENSE ////////////////////-->
-    <licenses>
-        <license>
-            <name>MIT</name>
-            <url>http://opensource.org/licenses/MIT</url>
-        </license>
-    </licenses>
+	<!--//////////////////// LICENSE //////////////////// -->
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>http://opensource.org/licenses/MIT</url>
+		</license>
+	</licenses>
 
-    <!--//////////////////// DEVELOPER///////////////////-->
-    <developers>
-        <developer>
-            <name>Antonio Rabelo</name>
-        </developer>
-    </developers>
+	<!--//////////////////// DEVELOPER/////////////////// -->
+	<developers>
+		<developer>
+			<name>Antonio Rabelo</name>
+		</developer>
+	</developers>
 
-    <!--//////////////////// SCM    ////////////////////-->
-    <scm>
-        <url>https://github.com/tennaito/rsql-jpa/</url>
-        <connection>scm:git:https://github.com/tennaito/rsql-jpa.git</connection>
-        <developerConnection>scm:git:https://github.com/tennaito/rsql-jpa.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
+	<!--//////////////////// SCM //////////////////// -->
+	<scm>
+		<url>https://github.com/tennaito/rsql-jpa/</url>
+		<connection>scm:git:https://github.com/tennaito/rsql-jpa.git</connection>
+		<developerConnection>scm:git:https://github.com/tennaito/rsql-jpa.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
 
-    <!--//////////////////// PROPERTIES ////////////////////-->
+	<!--//////////////////// PROPERTIES //////////////////// -->
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
 
-    <!--//////////////////// DEPENDENCIES ////////////////////-->
-    <dependencies>
+	<!--//////////////////// DEPENDENCIES //////////////////// -->
+	<dependencies>
 
-        <!-- Compile scope -->
-        <dependency>
-            <groupId>cz.jirutka.rsql</groupId>
-            <artifactId>rsql-parser</artifactId>
-            <version>2.1.0</version>
-        </dependency>
+		<!-- Compile scope -->
+		<dependency>
+			<groupId>cz.jirutka.rsql</groupId>
+			<artifactId>rsql-parser</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 
-        <!-- Unfortunately we don´t have a canonical javax.persistence 2.1 yet -->
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
-            <version>1.0.0.Final</version>
-        </dependency>
+		<dependency>
+			<groupId>jakarta.persistence</groupId>
+			<artifactId>jakarta.persistence-api</artifactId>
+			<version>2.2.3</version>
+		</dependency>
+		
+		<!-- Test scope -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>5.2.15.Final</version>
+			<scope>test</scope>
+		</dependency>
 
-        <!-- Test scope -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>5.2.15.Final</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>2.7.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>eclipselink</artifactId>
-            <version>2.7.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.4.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.4.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+	<!--//////////////////// PROFILES //////////////////// -->
 
-    <!--//////////////////// PROFILES ////////////////////-->
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<version>2.5.3</version>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<useReleaseProfile>false</useReleaseProfile>
+							<releaseProfiles>release</releaseProfiles>
+							<goals>deploy nexus-staging:release</goals>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.3</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>false</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.0.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- General profile for CI to analyze code coverage. -->
+		<profile>
+			<id>ci</id>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
-                        <configuration>
-                            <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <useReleaseProfile>false</useReleaseProfile>
-                            <releaseProfiles>release</releaseProfiles>
-                            <goals>deploy nexus-staging:release</goals>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.3</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <!--
-            General profile for CI to analyze code coverage.
-        -->
-        <profile>
-            <id>ci</id>
+			<!-- Will be automatically activated on Travis CI and possibly other CI 
+				environments. -->
+			<activation>
+				<property>
+					<name>env.CI</name>
+				</property>
+			</activation>
 
-            <!-- Will be automatically activated on Travis CI and possibly other CI environments. -->
-            <activation>
-                <property>
-                    <name>env.CI</name>
-                </property>
-            </activation>
+			<properties>
+				<!-- Properties specific for Sonar -->
+				<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+				<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+				<sonar.jacoco.itReportPath>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPath>
+			</properties>
 
-            <properties>
-                <!-- Properties specific for Sonar -->
-                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-                <sonar.jacoco.itReportPath>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPath>
-            </properties>
+			<build>
+				<plugins>
+					<!-- Analyze code coverage with JaCoCo. -->
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.8.3</version>
+						<executions>
+							<execution>
+								<id>prepare-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>prepare-agent-integration</id>
+								<goals>
+									<goal>prepare-agent-integration</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- Profile for Travis CI to use Coveralls. -->
+		<profile>
+			<id>travis-ci</id>
 
-            <build>
-                <plugins>
-                    <!--
-                        Analyze code coverage with JaCoCo.
-                    -->
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.3</version>
-                        <executions>
-                            <execution>
-                                <id>prepare-agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>prepare-agent-integration</id>
-                                <goals>
-                                    <goal>prepare-agent-integration</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <!--
-            Profile for Travis CI to use Coveralls.
-        -->
-        <profile>
-            <id>travis-ci</id>
+			<!-- Will be automatically activated on Travis CI. -->
+			<activation>
+				<property>
+					<name>env.TRAVIS</name>
+				</property>
+			</activation>
 
-            <!-- Will be automatically activated on Travis CI. -->
-            <activation>
-                <property>
-                    <name>env.TRAVIS</name>
-                </property>
-            </activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.8.3</version>
+						<executions>
+							<!-- Merge execution data for unit and integration tests. -->
+							<execution>
+								<id>merge-exec-data</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>merge</goal>
+								</goals>
+								<configuration>
+									<fileSets>
+										<fileSet>
+											<directory>${project.build.directory}</directory>
+											<includes>
+												<include>*.exec</include>
+											</includes>
+										</fileSet>
+									</fileSets>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.3</version>
-                        <executions>
-                            <!-- Merge execution data for unit and integration tests. -->
-                            <execution>
-                                <id>merge-exec-data</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>merge</goal>
-                                </goals>
-                                <configuration>
-                                    <fileSets>
-                                        <fileSet>
-                                            <directory>${project.build.directory}</directory>
-                                            <includes>
-                                                <include>*.exec</include>
-                                            </includes>
-                                        </fileSet>
-                                    </fileSets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
+					<!-- Plugin for submitting code coverage reports to Coveralls. To get 
+						it work on Travis, add these lines into your .travis.yml: script: 'mvn verify 
+						-B' after_success: 'mvn jacoco:report coveralls:jacoco' -->
+					<plugin>
+						<groupId>org.eluder.coveralls</groupId>
+						<artifactId>coveralls-maven-plugin</artifactId>
+						<version>2.2.0</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<compilerArgs>
+					</compilerArgs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
-                    <!--
-                        Plugin for submitting code coverage reports to Coveralls.
-                        To get it work on Travis, add these lines into your .travis.yml:
-                            script: 'mvn verify -B'
-                            after_success: 'mvn jacoco:report coveralls:jacoco'
-                    -->
-                    <plugin>
-                        <groupId>org.eluder.coveralls</groupId>
-                        <artifactId>coveralls-maven-plugin</artifactId>
-                        <version>2.2.0</version>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <compilerArgs>
-                    </compilerArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <!--//////////////////// DISTRIBUTION ////////////////////-->
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-    <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/tennaito/rsql-jpa</url>
-    </ciManagement>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/tennaito/rsql-jpa/issues</url>
-    </issueManagement>
+	<!--//////////////////// DISTRIBUTION //////////////////// -->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+	<ciManagement>
+		<system>travis</system>
+		<url>https://travis-ci.org/tennaito/rsql-jpa</url>
+	</ciManagement>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/tennaito/rsql-jpa/issues</url>
+	</issueManagement>
 </project>

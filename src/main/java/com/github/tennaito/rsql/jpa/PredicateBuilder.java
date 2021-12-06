@@ -213,10 +213,10 @@ public final class PredicateBuilder {
                     classMetadata = metaModel.managedType(associationType);
                     LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
 
-                    if (root instanceof Join) {
-                        root = root.get(mappedProperty);
+                    if (root instanceof From) {
+                        root = findJoin((From<?, ?>) root, mappedProperty);
                     } else {
-                        root = ((From) root).join(mappedProperty);
+                        root = root.get(mappedProperty);
                     }
                 } else {
                     LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});
@@ -233,6 +233,14 @@ public final class PredicateBuilder {
         return root;
     }
 
+    private static Join<?, ?> findJoin(From<?, ?> rootFrom, String mappedProperty) {
+        for (Join<?, ?> join : rootFrom.getJoins()) {
+            if (join.getAttribute().getName().equals(mappedProperty)) {
+                return join;
+            }
+        }
+        return rootFrom.join(mappedProperty);
+    }
     ///////////////  TEMPLATE METHODS  ///////////////
 
     /**

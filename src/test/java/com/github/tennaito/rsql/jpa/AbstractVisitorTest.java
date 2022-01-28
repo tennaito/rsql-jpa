@@ -51,31 +51,31 @@ public abstract class AbstractVisitorTest<T> {
 	@BeforeClass
 	public static void setUpBefore() throws Exception {
 		if (!loaded) {
-			
+
 			EntityManager entityManager = EntityManagerFactoryInitializer.getEntityManagerFactory().createEntityManager();
 			entityManager.getTransaction().begin();
-			
+
 			Title title1 = new Title();
 			title1.setId(1L);
 			title1.setName("Phd");
 			entityManager.persist(title1);
-			
+
 			Title title2 = new Title();
 			title2.setId(2L);
 			title2.setName("Consultant");
 			entityManager.persist(title2);
-			
+
 			Set<Title> titles = new HashSet<Title>();
 			titles.add(title1);
 			titles.add(title2);
-			
+
 			Person head = new Person();
 			head.setId(1L);
 			head.setName("Some");
 			head.setSurname("One");
 			head.setTitles(titles);
 			entityManager.persist(head);
-			
+
 			Department department = new Department();
 			department.setId(1L);
 			department.setName("Testing");
@@ -83,11 +83,19 @@ public abstract class AbstractVisitorTest<T> {
 			department.setHead(head);
 			entityManager.persist(department);
 
+            Department department2 = new Department();
+            department2.setId(2L);
+            department2.setName("Testing2");
+            department2.setCode("AAA");
+            department2.setHead(head);
+            entityManager.persist(department2);
+
+
 			Teacher teacher = new Teacher();
 			teacher.setId(23L);
 			teacher.setSpecialtyDescription("Maths");
 			entityManager.persist(teacher);
-			
+
 			Course c = new Course();
 			c.setId(1L);
 			c.setCode("MI-MDW");
@@ -99,7 +107,19 @@ public abstract class AbstractVisitorTest<T> {
 			c.getDetails().setTeacher(teacher);
 			c.setStartDate( new Date());
 			entityManager.persist(c);
-			
+
+            Course c2 = new Course();
+            c2.setId(2L);
+            c2.setCode("AAA");
+            c2.setActive(true);
+            c2.setCredits(20);
+            c2.setName("Testing Course 2");
+            c2.setDepartment(department2);
+            c2.setDetails(CourseDetails.of("test"));
+            c2.getDetails().setTeacher(teacher);
+            c2.setStartDate( new Date(946681200000L)); // 2000-01-01 00:00:00
+            entityManager.persist(c2);
+
 			entityManager.getTransaction().commit();
 			loaded = true;
 		}

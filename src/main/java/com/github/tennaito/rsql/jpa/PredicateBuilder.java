@@ -95,7 +95,7 @@ public final class PredicateBuilder {
      * @return 			Predicate a predicate representation of the Node.
      */
     public static <T> Predicate createPredicate(Node node, From root, Class<T> entity, EntityManager manager, BuilderTools misc) {
-        LOG.log(Level.INFO, "Creating Predicate for: {0}", node);
+        LOG.log(Level.FINE, "Creating Predicate for: {0}", node);
 
         if (node instanceof LogicalNode) {
             return createPredicate((LogicalNode)node, root, entity, manager, misc);
@@ -119,13 +119,13 @@ public final class PredicateBuilder {
      * @return 				 Predicate a predicate representation of the Node.
      */
     public static <T> Predicate createPredicate(LogicalNode logical, From root, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
-        LOG.log(Level.INFO, "Creating Predicate for logical node: {0}", logical);
+        LOG.log(Level.FINE, "Creating Predicate for logical node: {0}", logical);
 
     	CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 
     	List<Predicate> predicates = new ArrayList<Predicate>();
 
-    	LOG.log(Level.INFO, "Creating Predicates from all children nodes.");
+    	LOG.log(Level.FINE, "Creating Predicates from all children nodes.");
     	for (Node node : logical.getChildren()) {
     		predicates.add(createPredicate(node, root, entity, entityManager, misc));
 		}
@@ -154,12 +154,12 @@ public final class PredicateBuilder {
     		LOG.log(Level.SEVERE, msg);
     		throw new IllegalArgumentException(msg);
     	}
-    	LOG.log(Level.INFO, "Creating Predicate for comparison node: {0}", comparison);
+    	LOG.log(Level.FINE, "Creating Predicate for comparison node: {0}", comparison);
 
-        LOG.log(Level.INFO, "Property graph path : {0}", comparison.getSelector());
+        LOG.log(Level.FINE, "Property graph path : {0}", comparison.getSelector());
         Expression propertyPath = findPropertyPath(comparison.getSelector(), startRoot, entityManager, misc);
 
-		LOG.log(Level.INFO, "Cast all arguments to type {0}.", propertyPath.getJavaType().getName());
+		LOG.log(Level.FINE, "Cast all arguments to type {0}.", propertyPath.getJavaType().getName());
     	List<Object> castedArguments = misc.getArgumentParser().parse(comparison.getArguments(), propertyPath.getJavaType());
 
     	try {
@@ -206,7 +206,7 @@ public final class PredicateBuilder {
                     Class<?> associationType = findPropertyType(mappedProperty, classMetadata);
                     String previousClass = classMetadata.getJavaType().getName();
                     classMetadata = metaModel.managedType(associationType);
-                    LOG.log(Level.INFO, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
+                    LOG.log(Level.FINE, "Create a join between {0} and {1}.", new Object[]{previousClass, classMetadata.getJavaType().getName()});
 
                     if (root instanceof From) {
                         root = findJoin((From<?, ?>) root, mappedProperty);
@@ -214,7 +214,7 @@ public final class PredicateBuilder {
                         root = root.get(mappedProperty);
                     }
                 } else {
-                    LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});
+                    LOG.log(Level.FINE, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});
                     root = root.get(mappedProperty);
 
                     if (isEmbeddedType(mappedProperty, classMetadata)) {
@@ -248,7 +248,7 @@ public final class PredicateBuilder {
      * @return              Predicate a predicate representation.
      */
     private static Predicate createPredicate(Expression propertyPath, ComparisonOperator operator, List<Object> arguments, EntityManager manager) {
-    	LOG.log(Level.INFO, "Creating predicate: propertyPath {0} {1}", new Object[]{operator, arguments});
+    	LOG.log(Level.FINE, "Creating predicate: propertyPath {0} {1}", new Object[]{operator, arguments});
 
     	if (ComparisonOperatorProxy.asEnum(operator) != null) {
     		switch (ComparisonOperatorProxy.asEnum(operator)) {

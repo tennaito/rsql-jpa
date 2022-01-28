@@ -50,7 +50,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 * Logger.
 	 */
 	private static final Logger LOG = Logger.getLogger(JpaPredicateVisitor.class.getName());
-	
+
 	/**
 	 * Root.
 	 */
@@ -64,7 +64,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	public JpaPredicateVisitor(T... t) {
 		super(t);
 	}
-	
+
 	/**
 	 * Define the From node.
 	 * @param root From node that expressions path depends on.
@@ -79,7 +79,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
 	 */
 	public Predicate visit(AndNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating Predicate for AndNode: {0}", node);
+		LOG.log(Level.FINE, "Creating Predicate for AndNode: {0}", node);
 		return PredicateBuilder.<T>createPredicate(node, root, entityClass, entityManager, getBuilderTools());
 	}
 
@@ -87,7 +87,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
 	 */
 	public Predicate visit(OrNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating Predicate for OrNode: {0}", node);
+		LOG.log(Level.FINE, "Creating Predicate for OrNode: {0}", node);
 		return PredicateBuilder.<T>createPredicate(node, root, entityClass, entityManager, getBuilderTools());
 	}
 
@@ -95,7 +95,7 @@ public class JpaPredicateVisitor<T> extends AbstractJpaVisitor<Predicate, T>  im
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
 	 */
 	public Predicate visit(ComparisonNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating Predicate for ComparisonNode: {0}", node);
+		LOG.log(Level.FINE, "Creating Predicate for ComparisonNode: {0}", node);
     	return PredicateBuilder.<T>createPredicate(node, root, entityClass, entityManager, getBuilderTools());
 	}
 }

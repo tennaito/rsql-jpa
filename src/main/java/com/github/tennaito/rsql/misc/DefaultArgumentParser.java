@@ -57,7 +57,7 @@ public class DefaultArgumentParser implements ArgumentParser {
     public <T> T parse(String argument, Class<T> type)
             throws ArgumentFormatException, IllegalArgumentException {
 
-    	LOG.log(Level.INFO, "Parsing argument ''{0}'' as type {1}, thread {2}", new Object[] {argument, type.getSimpleName(), Thread.currentThread().getName()});
+    	LOG.log(Level.FINE, "Parsing argument ''{0}'' as type {1}, thread {2}", new Object[] {argument, type.getSimpleName(), Thread.currentThread().getName()});
 
         // Nullable object
         if (argument == null || "null".equals(argument.trim().toLowerCase())) {
@@ -85,7 +85,7 @@ public class DefaultArgumentParser implements ArgumentParser {
 
         // try to parse via valueOf(String s) method
         try {
-        	LOG.log(Level.INFO, "Trying to get and invoke valueOf(String s) method on {0}", type);
+        	LOG.log(Level.FINE, "Trying to get and invoke valueOf(String s) method on {0}", type);
             Method method = type.getMethod("valueOf", String.class);
             return (T) method.invoke(type, argument);
         } catch (InvocationTargetException ex) {
@@ -100,7 +100,7 @@ public class DefaultArgumentParser implements ArgumentParser {
         try {
             return new SimpleDateFormat(DATE_TIME_PATTERN).parse(argument);
         } catch (ParseException ex) {
-            LOG.log(Level.INFO, "Not a date time format, lets try with date format.");
+            LOG.log(Level.FINE, "Not a date time format, lets try with date format.");
         }
         try {
             return new SimpleDateFormat(DATE_PATTERN).parse(argument);

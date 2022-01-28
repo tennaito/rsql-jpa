@@ -64,7 +64,7 @@ public class SimpleMapper implements Mapper {
         String property = (map != null) ? map.get(selector) : null;
 
         if (property != null) {
-        	LOG.log(Level.INFO, "Found mapping {0} -> {1}" , new Object[] {selector, property});
+        	LOG.log(Level.FINE, "Found mapping {0} -> {1}" , new Object[] {selector, property});
             return property;
         }
 

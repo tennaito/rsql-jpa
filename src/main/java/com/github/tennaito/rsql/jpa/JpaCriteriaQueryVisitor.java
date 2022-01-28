@@ -49,7 +49,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	private static final Logger LOG = Logger.getLogger(JpaCriteriaQueryVisitor.class.getName());
 
 	private final JpaPredicateVisitor<T> predicateVisitor;
-	
+
 	/**
 	 * Construtor with template varargs for entityClass discovery.
 	 *
@@ -62,7 +62,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 
 	/**
 	 * Get the Predicate Visitor instance.
-	 * 
+	 *
 	 * @return Return the Predicate Visitor.
 	 */
 	protected JpaPredicateVisitor<T> getPredicateVisitor() {
@@ -74,7 +74,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
 	 */
 	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
+		LOG.log(Level.FINE, "Creating CriteriaQuery for AndNode: {0}", node);
 		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
 		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
@@ -84,7 +84,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
 	 */
 	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
+		LOG.log(Level.FINE, "Creating CriteriaQuery for OrNode: {0}", node);
 		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
 		return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));
@@ -94,7 +94,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
 	 */
 	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
-		LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
+		LOG.log(Level.FINE, "Creating CriteriaQuery for ComparisonNode: {0}", node);
     	CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
     	return criteria.where(this.getPredicateVisitor().defineRoot(root).visit(node, entityManager));

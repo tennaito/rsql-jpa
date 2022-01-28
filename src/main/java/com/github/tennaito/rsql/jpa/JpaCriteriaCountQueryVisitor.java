@@ -78,7 +78,7 @@ public class JpaCriteriaCountQueryVisitor<T> extends AbstractJpaVisitor<Criteria
      * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
      */
     public CriteriaQuery<Long> visit(AndNode node, EntityManager entityManager) {
-        LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
+        LOG.log(Level.FINE, "Creating CriteriaQuery for AndNode: {0}", node);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -93,7 +93,7 @@ public class JpaCriteriaCountQueryVisitor<T> extends AbstractJpaVisitor<Criteria
      * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
      */
     public CriteriaQuery<Long> visit(OrNode node, EntityManager entityManager) {
-        LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
+        LOG.log(Level.FINE, "Creating CriteriaQuery for OrNode: {0}", node);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -108,7 +108,7 @@ public class JpaCriteriaCountQueryVisitor<T> extends AbstractJpaVisitor<Criteria
      * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
      */
     public CriteriaQuery<Long> visit(ComparisonNode node, EntityManager entityManager) {
-        LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
+        LOG.log(Level.FINE, "Creating CriteriaQuery for ComparisonNode: {0}", node);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);

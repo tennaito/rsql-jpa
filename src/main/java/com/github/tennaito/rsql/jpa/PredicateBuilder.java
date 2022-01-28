@@ -32,12 +32,7 @@ import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.Node;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
@@ -105,7 +100,7 @@ public final class PredicateBuilder {
         if (node instanceof LogicalNode) {
             return createPredicate((LogicalNode)node, root, entity, manager, misc);
         }
-        
+
         if (node instanceof ComparisonNode) {
             return createPredicate((ComparisonNode)node, root, entity, manager, misc);
         }
@@ -117,7 +112,7 @@ public final class PredicateBuilder {
      * Create a Predicate from the RSQL AST logical node.
      *
      * @param logical        RSQL AST logical node.
-     * @param root           From that predicate expression paths depends on. 
+     * @param root           From that predicate expression paths depends on.
      * @param entity  		 The main entity of the query.
      * @param entityManager  JPA EntityManager.
      * @param misc      	 Facade with all necessary tools for predicate creation.
@@ -216,7 +211,7 @@ public final class PredicateBuilder {
                     if (root instanceof Join) {
                         root = root.get(mappedProperty);
                     } else {
-                        root = ((From) root).join(mappedProperty);
+                        root = ((From) root).join(mappedProperty, JoinType.LEFT);
                     }
                 } else {
                     LOG.log(Level.INFO, "Create property path for type {0} property {1}.", new Object[]{classMetadata.getJavaType().getName(), mappedProperty});
@@ -600,7 +595,7 @@ public final class PredicateBuilder {
      *
      * @param property       Property name for type extraction.
      * @param classMetadata  Reference class metamodel that holds property type.
-     * @return               Class java type for the property, 
+     * @return               Class java type for the property,
      * 						 if the property is a pluralAttribute it will take the bindable java type of that collection.
      */
     private static <T> Class<?> findPropertyType(String property, ManagedType<T> classMetadata) {

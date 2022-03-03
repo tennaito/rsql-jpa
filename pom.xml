@@ -4,9 +4,9 @@
 
     <groupId>com.github.tennaito</groupId>
     <artifactId>rsql-jpa</artifactId>
-    <version>2.0.4-SNAPSHOT</version>
+    <version>2.0.3-SNAPSHOT-STEMYS</version>
     <packaging>jar</packaging>
-    
+
     <!--//////////////////// ABOUT ////////////////////-->
     <name>RSQL-JPA</name>
     <inceptionYear>2015</inceptionYear>
@@ -20,14 +20,14 @@
             <url>http://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
-    
+
     <!--//////////////////// DEVELOPER///////////////////-->
     <developers>
     	<developer>
       		<name>Antonio Rabelo</name>
     	</developer>
 	</developers>
-    
+
 	<!--//////////////////// SCM    ////////////////////-->
     <scm>
         <url>https://github.com/tennaito/rsql-jpa/</url>
@@ -40,6 +40,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <!--//////////////////// DEPENDENCIES ////////////////////-->
@@ -158,7 +160,7 @@
 						</executions>
 					</plugin>
 				</plugins>
-			</build>    
+			</build>
         </profile>
         <!--
             General profile for CI to analyze code coverage.
@@ -206,7 +208,7 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>        
+        </profile>
         <!--
             Profile for Travis CI to use Coveralls.
         -->
@@ -257,24 +259,26 @@
                     <plugin>
                         <groupId>org.eluder.coveralls</groupId>
                         <artifactId>coveralls-maven-plugin</artifactId>
-						<version>2.2.0</version>                        
+						<version>2.2.0</version>
                     </plugin>
                 </plugins>
             </build>
-        </profile>        
+        </profile>
     </profiles>
-    
+
     <!--//////////////////// DISTRIBUTION ////////////////////-->
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>	
+    <distributionManagement>
+        <repository>
+            <id>nexus-stemys</id>
+            <name>Releases</name>
+            <url>https://nexus.stemys.ch/repository/stemys-platform-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-stemys</id>
+            <name>Snapshots</name>
+            <url>https://nexus.stemys.ch/repository/stemys-platform-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 	<ciManagement>
 		<system>travis</system>
 		<url>https://travis-ci.org/tennaito/rsql-jpa</url>
@@ -282,5 +286,5 @@
 	<issueManagement>
 		<system>GitHub</system>
 		<url>https://github.com/tennaito/rsql-jpa/issues</url>
-	</issueManagement>	
+	</issueManagement>
 </project>

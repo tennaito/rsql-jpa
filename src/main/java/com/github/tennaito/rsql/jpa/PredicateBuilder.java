@@ -24,14 +24,14 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import com.github.tennaito.rsql.builder.BuilderTools;
-import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
-import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.LogicalNode;
-import cz.jirutka.rsql.parser.ast.Node;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
@@ -43,13 +43,15 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import com.github.tennaito.rsql.builder.BuilderTools;
+import com.github.tennaito.rsql.misc.EntityManagerAdapter;
+import com.github.tennaito.rsql.parser.ast.ComparisonOperatorProxy;
+
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.Node;
 
 /**
  * PredicateBuilder
@@ -95,11 +97,11 @@ public final class PredicateBuilder {
      * @param node      RSQL AST node.
      * @param root      From that predicate expression paths depends on.
      * @param entity    The main entity of the query.
-     * @param manager   JPA EntityManager.
+     * @param manager   JPA EntityManagerAdapter.
      * @param misc      Facade with all necessary tools for predicate creation.
      * @return 			Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(Node node, From root, Class<T> entity, EntityManager manager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(Node node, From root, Class<T> entity, EntityManagerAdapter manager, BuilderTools misc) {
         LOG.log(Level.INFO, "Creating Predicate for: {0}", node);
 
         if (node instanceof LogicalNode) {
@@ -119,11 +121,11 @@ public final class PredicateBuilder {
      * @param logical        RSQL AST logical node.
      * @param root           From that predicate expression paths depends on. 
      * @param entity  		 The main entity of the query.
-     * @param entityManager  JPA EntityManager.
+     * @param entityManager  JPA EntityManagerAdapter.
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(LogicalNode logical, From root, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(LogicalNode logical, From root, Class<T> entity, EntityManagerAdapter entityManager, BuilderTools misc) {
         LOG.log(Level.INFO, "Creating Predicate for logical node: {0}", logical);
 
     	CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -149,11 +151,11 @@ public final class PredicateBuilder {
      * @param comparison	 RSQL AST comparison node.
      * @param startRoot      From that predicate expression paths depends on.
      * @param entity  		 The main entity of the query.
-     * @param entityManager  JPA EntityManager.
+     * @param entityManager  JPA EntityManagerAdapter.
      * @param misc      	 Facade with all necessary tools for predicate creation.
      * @return 				 Predicate a predicate representation of the Node.
      */
-    public static <T> Predicate createPredicate(ComparisonNode comparison, From startRoot, Class<T> entity, EntityManager entityManager, BuilderTools misc) {
+    public static <T> Predicate createPredicate(ComparisonNode comparison, From startRoot, Class<T> entity, EntityManagerAdapter entityManager, BuilderTools misc) {
     	if (startRoot == null) {
     		String msg = "From root node was undefined.";
     		LOG.log(Level.SEVERE, msg);
@@ -185,12 +187,12 @@ public final class PredicateBuilder {
      *
      * @param propertyPath   The property path to find.
      * @param startRoot      From that property path depends on.
-     * @param entityManager  JPA EntityManager.
+     * @param entityManager  JPA EntityManagerAdapter.
      * @param misc           Facade with all necessary tools for predicate creation.
      * @return               The Path for the property path
      * @throws               IllegalArgumentException if attribute of the given property name does not exist
      */
-    public static <T> Path<?> findPropertyPath(String propertyPath, Path startRoot, EntityManager entityManager,  BuilderTools misc) {
+    public static <T> Path<?> findPropertyPath(String propertyPath, Path startRoot, EntityManagerAdapter entityManager,  BuilderTools misc) {
         String[] graph = propertyPath.split("\\.");
 
         Metamodel metaModel = entityManager.getMetamodel();
@@ -241,10 +243,10 @@ public final class PredicateBuilder {
      * @param propertyPath  Property path that we want to compare.
      * @param operator      Comparison operator.
      * @param arguments     Arguments (1 for binary comparisons, n for multi-value comparisons [in, not in (out)])
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createPredicate(Expression propertyPath, ComparisonOperator operator, List<Object> arguments, EntityManager manager) {
+    private static Predicate createPredicate(Expression propertyPath, ComparisonOperator operator, List<Object> arguments, EntityManagerAdapter manager) {
     	LOG.log(Level.INFO, "Creating predicate: propertyPath {0} {1}", new Object[]{operator, arguments});
 
     	if (ComparisonOperatorProxy.asEnum(operator) != null) {
@@ -345,7 +347,7 @@ public final class PredicateBuilder {
      +     * @param manager the manager
      +     * @return the predicate
      +     */
-    private static Predicate createBetweenThan(Expression propertyPath, Date start, Date end, EntityManager manager) {
+    private static Predicate createBetweenThan(Expression propertyPath, Date start, Date end, EntityManagerAdapter manager) {
        	CriteriaBuilder builder = manager.getCriteriaBuilder();
        	return builder.between(propertyPath, start, end);
     }
@@ -356,10 +358,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument with/without wildcards
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createLike(Expression<String> propertyPath, String argument, EntityManager manager) {
+    private static Predicate createLike(Expression<String> propertyPath, String argument, EntityManagerAdapter manager) {
         String like = argument.replace(LIKE_WILDCARD, '%');
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.like(builder.lower(propertyPath), like.toLowerCase());
@@ -369,10 +371,10 @@ public final class PredicateBuilder {
      * Apply an "is null" constraint to the property path.
      *
      * @param propertyPath  Property path that we want to compare.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createIsNull(Expression<?> propertyPath, EntityManager manager) {
+    private static Predicate createIsNull(Expression<?> propertyPath, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
     	return builder.isNull(propertyPath);
     }
@@ -382,10 +384,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createEqual(Expression<?> propertyPath, Object argument, EntityManager manager) {
+    private static Predicate createEqual(Expression<?> propertyPath, Object argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
     	return builder.equal(propertyPath, argument);
     }
@@ -395,10 +397,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createNotEqual(Expression<?> propertyPath, Object argument, EntityManager manager) {
+    private static Predicate createNotEqual(Expression<?> propertyPath, Object argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.notEqual(propertyPath, argument);
     }
@@ -409,10 +411,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument with/without wildcards
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createNotLike(Expression<String> propertyPath, String argument, EntityManager manager) {
+    private static Predicate createNotLike(Expression<String> propertyPath, String argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.not(createLike(propertyPath, argument, manager));
     }
@@ -421,10 +423,10 @@ public final class PredicateBuilder {
      * Apply an "is not null" constraint to the property path.
      *
      * @param propertyPath  Property path that we want to compare.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createIsNotNull(Expression<?> propertyPath, EntityManager manager) {
+    private static Predicate createIsNotNull(Expression<?> propertyPath, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.isNotNull(propertyPath);
     }
@@ -434,10 +436,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument number.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createGreaterThan(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createGreaterThan(Expression<? extends Number> propertyPath, Number argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.gt(propertyPath, argument);
     }
@@ -447,10 +449,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static <Y extends Comparable<? super Y>> Predicate createGreaterThanComparable(Expression<? extends Y> propertyPath, Y argument, EntityManager manager) {
+    private static <Y extends Comparable<? super Y>> Predicate createGreaterThanComparable(Expression<? extends Y> propertyPath, Y argument, EntityManagerAdapter manager) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.greaterThan(propertyPath, argument);
     }
@@ -460,10 +462,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument number.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createGreaterEqual(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createGreaterEqual(Expression<? extends Number> propertyPath, Number argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.ge(propertyPath, argument);
     }
@@ -473,10 +475,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static <Y extends Comparable<? super Y>> Predicate createGreaterEqualComparable(Expression<? extends Y> propertyPath, Y argument, EntityManager manager) {
+    private static <Y extends Comparable<? super Y>> Predicate createGreaterEqualComparable(Expression<? extends Y> propertyPath, Y argument, EntityManagerAdapter manager) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.greaterThanOrEqualTo(propertyPath, argument);
     }
@@ -486,10 +488,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument number.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createLessThan(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createLessThan(Expression<? extends Number> propertyPath, Number argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.lt(propertyPath, argument);
     }
@@ -499,10 +501,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static <Y extends Comparable<? super Y>> Predicate createLessThanComparable(Expression<? extends Y> propertyPath, Y argument, EntityManager manager) {
+    private static <Y extends Comparable<? super Y>> Predicate createLessThanComparable(Expression<? extends Y> propertyPath, Y argument, EntityManagerAdapter manager) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.lessThan(propertyPath, argument);
     }
@@ -512,10 +514,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument number.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createLessEqual(Expression<? extends Number> propertyPath, Number argument, EntityManager manager) {
+    private static Predicate createLessEqual(Expression<? extends Number> propertyPath, Number argument, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.le(propertyPath, argument);
     }
@@ -525,10 +527,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param argument      Argument.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static <Y extends Comparable<? super Y>> Predicate createLessEqualComparable(Expression<? extends Y> propertyPath, Y argument, EntityManager manager) {
+    private static <Y extends Comparable<? super Y>> Predicate createLessEqualComparable(Expression<? extends Y> propertyPath, Y argument, EntityManagerAdapter manager) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         return builder.lessThanOrEqualTo(propertyPath, argument);
     }
@@ -538,10 +540,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param arguments     List of arguments.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createIn(Expression<?> propertyPath, List<?> arguments, EntityManager manager) {
+    private static Predicate createIn(Expression<?> propertyPath, List<?> arguments, EntityManagerAdapter manager) {
     	return propertyPath.in(arguments);
     }
 
@@ -550,10 +552,10 @@ public final class PredicateBuilder {
      *
      * @param propertyPath  Property path that we want to compare.
      * @param arguments     List of arguments.
-     * @param manager       JPA EntityManager.
+     * @param manager       JPA EntityManagerAdapter.
      * @return              Predicate a predicate representation.
      */
-    private static Predicate createNotIn(Expression<?> propertyPath, List<?> arguments, EntityManager manager) {
+    private static Predicate createNotIn(Expression<?> propertyPath, List<?> arguments, EntityManagerAdapter manager) {
     	CriteriaBuilder builder = manager.getCriteriaBuilder();
     	return builder.not(createIn(propertyPath,arguments, manager));
     }

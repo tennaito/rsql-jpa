@@ -23,7 +23,7 @@
  */
 package com.github.tennaito.rsql.jpa.entity;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 /**
  * @author Antonio Rabelo

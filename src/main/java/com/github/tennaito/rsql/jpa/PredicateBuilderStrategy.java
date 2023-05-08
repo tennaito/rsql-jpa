@@ -23,9 +23,9 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Predicate;
 
 import com.github.tennaito.rsql.builder.BuilderTools;
 

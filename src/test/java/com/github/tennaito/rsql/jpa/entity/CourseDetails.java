@@ -1,7 +1,7 @@
 package com.github.tennaito.rsql.jpa.entity;
 
-import javax.persistence.Embeddable;
-import javax.persistence.OneToOne;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.OneToOne;
 
 @Embeddable
 public class CourseDetails {

@@ -23,11 +23,10 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import javax.persistence.EntityManager;
-
 import com.github.tennaito.rsql.builder.BuilderTools;
 import com.github.tennaito.rsql.builder.SimpleBuilderTools;
 
+import com.github.tennaito.rsql.misc.EntityManagerAdapter;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
 /**
@@ -40,7 +39,7 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
  * @param <T> Result type
  * @param <E> Entity type
  */
-public abstract class AbstractJpaVisitor<T, E> implements RSQLVisitor<T, EntityManager> {
+public abstract class AbstractJpaVisitor<T, E> implements RSQLVisitor<T, EntityManagerAdapter> {
 
 	protected Class<E> entityClass;
 

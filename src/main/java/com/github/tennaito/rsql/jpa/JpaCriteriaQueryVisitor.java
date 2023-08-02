@@ -30,6 +30,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 
+import com.github.tennaito.rsql.misc.EntityManagerAdapter;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
@@ -44,7 +45,7 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
  *
  * @param <T> Entity type
  */
-public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<T>, T>  implements RSQLVisitor<CriteriaQuery<T>, EntityManager> {
+public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<T>, T>  implements RSQLVisitor<CriteriaQuery<T>, EntityManagerAdapter> {
 
 	private static final Logger LOG = Logger.getLogger(JpaCriteriaQueryVisitor.class.getName());
 
@@ -73,7 +74,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.AndNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(AndNode node, EntityManager entityManager) {
+	public CriteriaQuery<T> visit(AndNode node, EntityManagerAdapter entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for AndNode: {0}", node);
 		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
@@ -83,7 +84,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.OrNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(OrNode node, EntityManager entityManager) {
+	public CriteriaQuery<T> visit(OrNode node, EntityManagerAdapter entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for OrNode: {0}", node);
 		CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);
@@ -93,7 +94,7 @@ public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery
 	/* (non-Javadoc)
 	 * @see cz.jirutka.rsql.parser.ast.RSQLVisitor#visit(cz.jirutka.rsql.parser.ast.ComparisonNode, java.lang.Object)
 	 */
-	public CriteriaQuery<T> visit(ComparisonNode node, EntityManager entityManager) {
+	public CriteriaQuery<T> visit(ComparisonNode node, EntityManagerAdapter entityManager) {
 		LOG.log(Level.INFO, "Creating CriteriaQuery for ComparisonNode: {0}", node);
     	CriteriaQuery<T> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
     	From root = criteria.from(entityClass);

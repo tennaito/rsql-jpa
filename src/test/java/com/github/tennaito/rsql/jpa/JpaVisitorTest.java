@@ -30,6 +30,8 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -39,12 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +58,11 @@ import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.LogicalOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 /**
  * @author AntonioRabelo
@@ -602,16 +603,21 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 	    	// blank out the final bit in the modifiers int
 	    	modifiers &= ~Modifier.FINAL;
 	    	modifiersField.setInt(field, modifiers);
-	    	sun.reflect.FieldAccessor fa = sun.reflect.ReflectionFactory.getReflectionFactory().newFieldAccessor(field, false);
-	    	fa.set(null, value);
+
+	    	field.set(null, value);
 	    }
 
 		private static LogicalOperator createLogicalOperatorXor() {
 			LogicalOperator xor = null;
 			try {
 				Constructor<LogicalOperator> cstr = LogicalOperator.class.getDeclaredConstructor(String.class, int.class, String.class);
-				sun.reflect.ReflectionFactory factory = sun.reflect.ReflectionFactory.getReflectionFactory();
-				xor = (LogicalOperator) factory.newConstructorAccessor(cstr).newInstance(new Object[]{"XOR", 2, "^"});
+				cstr.setAccessible(true);
+
+				Field constructorAccessorField = Constructor.class.getDeclaredField("constructorAccessor");
+				constructorAccessorField.setAccessible(true);
+
+				MethodHandle h = MethodHandles.lookup().unreflectConstructor(cstr);
+				xor = (LogicalOperator) h.invokeExact("XOR", 2, "^");
 				
 				Field ordinalField = Enum.class.getDeclaredField("ordinal");
 			    ordinalField.setAccessible(true);
@@ -624,7 +630,7 @@ public class JpaVisitorTest extends AbstractVisitorTest<Course> {
 				setStaticFinalField(valuesField, newValues);
 				int ordinal = newValues.length - 1;
 				ordinalField.set(xor, ordinal);
-			} catch (ReflectiveOperationException e) {
+			} catch (Throwable e) {
 				// do nothing
 				e.printStackTrace();
 			}

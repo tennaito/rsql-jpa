@@ -26,14 +26,13 @@ package com.github.tennaito.rsql.jpa;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
-import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
 /**
  * JpaCriteriaQueryVisitor
@@ -44,7 +43,7 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
  *
  * @param <T> Entity type
  */
-public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<T>, T>  implements RSQLVisitor<CriteriaQuery<T>, EntityManager> {
+public class JpaCriteriaQueryVisitor<T> extends AbstractJpaVisitor<CriteriaQuery<T>, T>  {
 
 	private static final Logger LOG = Logger.getLogger(JpaCriteriaQueryVisitor.class.getName());
 

@@ -23,7 +23,7 @@
  */
 package com.github.tennaito.rsql.jpa;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.github.tennaito.rsql.builder.BuilderTools;
 import com.github.tennaito.rsql.builder.SimpleBuilderTools;
